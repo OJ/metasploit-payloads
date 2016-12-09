@@ -118,9 +118,11 @@ public interface TLVType {
     public static final int TLV_TYPE_VALUE_DATA = TLVPacket.TLV_META_TYPE_RAW    | 1012;
 
     // Config
-    public static final int TLV_TYPE_COMPUTER_NAME = TLVPacket.TLV_META_TYPE_STRING | 1040;
-    public static final int TLV_TYPE_OS_NAME       = TLVPacket.TLV_META_TYPE_STRING | 1041;
-    public static final int TLV_TYPE_USER_NAME     = TLVPacket.TLV_META_TYPE_STRING | 1042;
+    public static final int TLV_TYPE_COMPUTER_NAME  = TLVPacket.TLV_META_TYPE_STRING | 1040;
+    public static final int TLV_TYPE_OS_NAME        = TLVPacket.TLV_META_TYPE_STRING | 1041;
+    public static final int TLV_TYPE_USER_NAME      = TLVPacket.TLV_META_TYPE_STRING | 1042;
+    public static final int TLV_TYPE_ARCHITECTURE   = TLVPacket.TLV_META_TYPE_STRING | 1043;
+    public static final int TLV_TYPE_LOCAL_DATETIME = TLVPacket.TLV_META_TYPE_STRING | 1048;
 
     public static final int TLV_TYPE_ENV_VARIABLE = TLVPacket.TLV_META_TYPE_STRING | 1100;
     public static final int TLV_TYPE_ENV_VALUE    = TLVPacket.TLV_META_TYPE_STRING | 1101;
@@ -196,4 +198,16 @@ public interface TLVType {
     public static final int TLV_TYPE_DESKTOP_SCREENSHOT_PE32DLL_BUFFER = TLVPacket.TLV_META_TYPE_STRING | 3010;
     public static final int TLV_TYPE_DESKTOP_SCREENSHOT_PE64DLL_LENGTH = TLVPacket.TLV_META_TYPE_UINT   | 3011;
     public static final int TLV_TYPE_DESKTOP_SCREENSHOT_PE64DLL_BUFFER = TLVPacket.TLV_META_TYPE_STRING | 3012;
+
+    int TLV_TYPE_EXTENSION_EXTAPI = 0;
+    int TLV_EXTENSIONS = 20000;
+    int TLV_TYPE_EXT_CLIPBOARD_DOWNLOAD             = TLVPacket.TLV_META_TYPE_BOOL   | (TLV_TYPE_EXTENSION_EXTAPI + TLV_EXTENSIONS + 35);
+    int TLV_TYPE_EXT_CLIPBOARD_TYPE_TIMESTAMP       = TLVPacket.TLV_META_TYPE_STRING | (TLV_TYPE_EXTENSION_EXTAPI + TLV_EXTENSIONS + 38);
+    int TLV_TYPE_EXT_CLIPBOARD_TYPE_TEXT            = TLVPacket.TLV_META_TYPE_GROUP  | (TLV_TYPE_EXTENSION_EXTAPI + TLV_EXTENSIONS + 39);
+    int TLV_TYPE_EXT_CLIPBOARD_TYPE_TEXT_CONTENT    = TLVPacket.TLV_META_TYPE_STRING | (TLV_TYPE_EXTENSION_EXTAPI + TLV_EXTENSIONS + 40);
+
+    int LOAD_LIBRARY_FLAG_ON_DISK   = (1 << 0);
+    int LOAD_LIBRARY_FLAG_EXTENSION = (1 << 1);
+    int LOAD_LIBRARY_FLAG_LOCAL     = (1 << 2);
+
 }

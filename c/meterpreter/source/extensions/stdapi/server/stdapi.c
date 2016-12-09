@@ -42,6 +42,7 @@ Command customCommands[] =
 	COMMAND_REQ("stdapi_fs_stat", request_fs_stat),
 	COMMAND_REQ("stdapi_fs_file_expand_path", request_fs_file_expand_path),
 	COMMAND_REQ("stdapi_fs_file_move", request_fs_file_move),
+	COMMAND_REQ("stdapi_fs_file_copy", request_fs_file_copy),
 	COMMAND_REQ("stdapi_fs_md5", request_fs_md5),
 	COMMAND_REQ("stdapi_fs_sha1", request_fs_sha1),
 #ifdef _WIN32
@@ -110,11 +111,13 @@ Command customCommands[] =
 
 	// Sys/config
 	COMMAND_REQ("stdapi_sys_config_getuid", request_sys_config_getuid),
+	COMMAND_REQ("stdapi_sys_config_localtime", request_sys_config_localtime),
 	COMMAND_REQ("stdapi_sys_config_sysinfo", request_sys_config_sysinfo),
 	COMMAND_REQ("stdapi_sys_config_rev2self", request_sys_config_rev2self),
 	COMMAND_REQ("stdapi_sys_config_getprivs", request_sys_config_getprivs),
 	COMMAND_REQ("stdapi_sys_config_getenv", request_sys_config_getenv),
 #ifdef _WIN32
+	COMMAND_REQ("stdapi_sys_config_driver_list", request_sys_config_driver_list),
 	COMMAND_REQ("stdapi_sys_config_steal_token", request_sys_config_steal_token),
 	COMMAND_REQ("stdapi_sys_config_drop_token", request_sys_config_drop_token),
 	COMMAND_REQ("stdapi_sys_config_getsid", request_sys_config_getsid),

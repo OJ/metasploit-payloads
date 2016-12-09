@@ -81,6 +81,7 @@ define("TLV_TYPE_OS_NAME",             TLV_META_TYPE_STRING  | 1041);
 define("TLV_TYPE_USER_NAME",           TLV_META_TYPE_STRING  | 1042);
 define("TLV_TYPE_ARCHITECTURE",        TLV_META_TYPE_STRING  | 1043);
 define("TLV_TYPE_LANG_SYSTEM",         TLV_META_TYPE_STRING  | 1044);
+define("TLV_TYPE_LOCAL_DATETIME",      TLV_META_TYPE_STRING  | 1048);
 
 # Environment
 define("TLV_TYPE_ENV_VARIABLE",        TLV_META_TYPE_STRING  | 1100);
@@ -373,6 +374,34 @@ function stdapi_fs_delete($req, &$pkt) {
 }
 
 # works
+if (!function_exists('stdapi_fs_file_move')) {
+register_command('stdapi_fs_file_move');
+function stdapi_fs_file_move($req, &$pkt) {
+    my_print("doing mv");
+    $old_file_tlv = packet_get_tlv($req, TLV_TYPE_FILE_NAME);
+    $new_file_tlv = packet_get_tlv($req, TLV_TYPE_FILE_PATH);
+    $old_file = cononicalize_path($old_file_tlv['value']);
+    $new_file = cononicalize_path($new_file_tlv['value']);
+    $ret = @rename($old_file, $new_file);
+    return $ret ? ERROR_SUCCESS : ERROR_FAILURE;
+}
+}
+
+# works
+if (!function_exists('stdapi_fs_file_copy')) {
+register_command('stdapi_fs_file_copy');
+function stdapi_fs_file_copy($req, &$pkt) {
+    my_print("doing cp");
+    $old_file_tlv = packet_get_tlv($req, TLV_TYPE_FILE_NAME);
+    $new_file_tlv = packet_get_tlv($req, TLV_TYPE_FILE_PATH);
+    $old_file = cononicalize_path($old_file_tlv['value']);
+    $new_file = cononicalize_path($new_file_tlv['value']);
+    $ret = @copy($old_file, $new_file);
+    return $ret ? ERROR_SUCCESS : ERROR_FAILURE;
+}
+}
+
+# works
 if (!function_exists('stdapi_fs_getwd')) {
 register_command('stdapi_fs_getwd');
 function stdapi_fs_getwd($req, &$pkt) {
@@ -631,6 +660,15 @@ function stdapi_sys_config_sysinfo($req, &$pkt) {
     my_print("doing sysinfo");
     packet_add_tlv($pkt, create_tlv(TLV_TYPE_COMPUTER_NAME, php_uname("n")));
     packet_add_tlv($pkt, create_tlv(TLV_TYPE_OS_NAME, php_uname()));
+    return ERROR_SUCCESS;
+}
+}
+
+if (!function_exists('stdapi_sys_config_localtime')) {
+register_command('stdapi_sys_config_localtime');
+function stdapi_sys_config_localtime($req, &$pkt) {
+    my_print("doing localtime");
+    packet_add_tlv($pkt, create_tlv(TLV_TYPE_LOCAL_DATETIME, strftime("%Y-%m-%d %H:%M:%S %Z (UTC%z)")));
     return ERROR_SUCCESS;
 }
 }

