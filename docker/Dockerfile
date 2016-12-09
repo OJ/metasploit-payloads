@@ -1,7 +1,7 @@
 # To build the dev environment.
 # docker build -t rapid7/build:meterpreter .
 
-FROM ubuntu:14.04.2
+FROM ubuntu:14.04.5
 MAINTAINER Brent Cook <bcook@rapid7.com> (@busterbcook)
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -36,6 +36,7 @@ RUN echo y | /usr/local/android-sdk/tools/android update sdk --filter tools --no
 RUN echo y | /usr/local/android-sdk/tools/android update sdk --filter platform-tools --no-ui -a
 RUN echo y | /usr/local/android-sdk/tools/android update sdk --filter build-tools-23.0.0 --no-ui -a
 RUN echo y | /usr/local/android-sdk/tools/android update sdk --filter android-10 --no-ui -a
+RUN echo y | /usr/local/android-sdk/tools/android update sdk --filter android-19 --no-ui -a
 RUN echo y | /usr/local/android-sdk/tools/android update sdk --filter android-3 --no-ui -a
 
 # Pre-cache Maven artifacts
