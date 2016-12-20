@@ -10,4 +10,9 @@ DWORD stagelessinit_extension(const char* extensionName, LPBYTE data, DWORD data
 VOID register_dispatch_routines();
 VOID deregister_dispatch_routines(Remote * remote);
 
+#ifdef _WIN32
+DWORD request_core_unloadlib(Remote *pRemote, Packet *pPacket);
+DWORD unload_extension(Remote* remote, CHAR* extensionName);
+#endif
+
 #endif

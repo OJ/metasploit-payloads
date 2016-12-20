@@ -25,6 +25,83 @@ DWORD stagelessinit_extension(const char* extensionName, LPBYTE data, DWORD data
 	return ERROR_NOT_FOUND;
 }
 
+typedef struct _ExtensionFinder
+{
+	CHAR* name;
+	PEXTENSION extension;
+} EXTENSIONFINDER, *PEXTENSIONFINDER;
+
+BOOL find_extension_by_name(LPVOID pState, LPVOID pData)
+{
+	PEXTENSIONFINDER finder = (PEXTENSIONFINDER)pState;
+	PEXTENSION currentExtension = (PEXTENSION)pData;
+
+	if (strcmp(finder->name, currentExtension->name) == 0)
+	{
+		// we have found the extension we're looking for
+		finder->extension = currentExtension;
+	}
+
+	return TRUE;
+}
+
+DWORD get_reflective_dll_image_size(HMODULE reflectiveDll)
+{
+	ULONG_PTR baseAddress = (ULONG_PTR)reflectiveDll;
+	dprintf("[GET RDI SIZE] Base: %p", baseAddress);
+	ULONG_PTR e_lfanew = ((PIMAGE_DOS_HEADER)baseAddress)->e_lfanew;
+	dprintf("[GET RDI SIZE] e_lfanew: %x", e_lfanew);
+	ULONG_PTR ntHeader = baseAddress + e_lfanew;
+	dprintf("[GET RDI SIZE] ntHeader: %p", ntHeader);
+	ULONG_PTR optHeader = (ULONG_PTR)&((PIMAGE_NT_HEADERS)ntHeader)->OptionalHeader;
+	dprintf("[GET RDI SIZE] optHeader: %p", optHeader);
+	DWORD imageSize = ((PIMAGE_OPTIONAL_HEADER)optHeader)->SizeOfImage;
+	dprintf("[GET RDI SIZE] imageSize: %x", imageSize);
+
+	return imageSize;
+}
+
+DWORD unload_extension(Remote* remote, CHAR* extensionName)
+{
+	EXTENSIONFINDER finder = { 0 };
+
+	dprintf("[UNLOAD] Attempting to unload %s", extensionName);
+
+	finder.name = extensionName;
+
+	list_enumerate(gExtensionList, find_extension_by_name, &finder);
+
+	dprintf("[UNLOAD] Enumeration result %p", finder.extension);
+
+	if (finder.extension != NULL)
+	{
+		dprintf("[UNLOAD] Found extension");
+
+		dprintf("[UNLOAD] calling deinit()...");
+		finder.extension->deinit(remote);
+
+		dprintf("[UNLOAD] removing from the extension list...");
+		list_remove(gExtensionList, finder.extension);
+
+		dprintf("[UNLOAD] Looking for the dll image size");
+		DWORD imageSize = get_reflective_dll_image_size(finder.extension->library);
+		dprintf("[UNLOAD] Module %s is %u (0x%x) bytes in memory", extensionName, imageSize, imageSize);
+
+		dprintf("[UNLOAD] Setting memory to zero ...");
+		ZeroMemory(finder.extension->library, imageSize);
+
+		dprintf("[UNLOAD] Freeing up the image's memory");
+		VirtualFree(finder.extension->library, imageSize, MEM_RELEASE);
+
+		dprintf("[UNLOAD] Freeing the extension pointer");
+		free(finder.extension);
+
+		return ERROR_SUCCESS;
+	}
+
+	return ERROR_NOT_FOUND;
+}
+
 DWORD load_extension(HMODULE hLibrary, BOOL bLibLoadedReflectivly, Remote* pRemote, Packet* pResponse, Command* pFirstCommand)
 {
 	DWORD dwResult = ERROR_OUTOFMEMORY;
@@ -123,6 +200,17 @@ DWORD load_extension(HMODULE hLibrary, BOOL bLibLoadedReflectivly, Remote* pRemo
 }
 
 
+DWORD request_core_unloadlib(Remote *pRemote, Packet *pPacket)
+{
+	CHAR* extensionToUnload = packet_get_tlv_value_string(pPacket, TLV_TYPE_STRING);
+	Packet* response = packet_create_response(pPacket);
+
+	DWORD result = unload_extension(pRemote, extensionToUnload);
+
+	packet_transmit_response(result, pRemote, response);
+
+	return ERROR_SUCCESS;
+}
 
 /*
  * core_loadlib

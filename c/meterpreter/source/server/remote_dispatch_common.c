@@ -22,6 +22,7 @@ Command customCommands[] =
 	COMMAND_REQ("core_machine_id", request_core_machine_id),
 	COMMAND_REQ("core_set_uuid", request_core_set_uuid),
 #ifdef _WIN32
+	COMMAND_REQ("core_unloadlib", request_core_unloadlib),
 	COMMAND_INLINE_REP("core_patch_url", request_core_patch_url),
 #endif
 	COMMAND_TERMINATOR
@@ -114,23 +115,11 @@ VOID register_dispatch_routines()
  */
 VOID deregister_dispatch_routines(Remote * remote)
 {
-	while (TRUE)
+	while (list_count(gExtensionList) > 0)
 	{
-		PEXTENSION extension = list_pop(gExtensionList);
-		if (!extension)
-		{
-			break;
-		}
-
-		if (extension->deinit)
-		{
-			extension->deinit(remote);
-		}
-
-		free(extension);
+		PEXTENSION extension = list_get(gExtensionList, 0);
+		unload_extension(remote, extension->name);
 	}
-
-	command_deregister_all(customCommands);
 
 	list_destroy(gExtensionList);
 }
