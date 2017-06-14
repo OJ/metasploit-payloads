@@ -46,6 +46,7 @@ source/jpeg-8/Backup/*
 # other VS garbage
 *.suo
 *.ncb
+.vs
 
 # Doxygen output
 docs/*

@@ -6,6 +6,27 @@
 
 #define SLEEP_MAX_SEC (MAXDWORD / 1000)
 
+#if defined(_WIN32) && (_MSC_VER > 1300)
+#ifndef __iob_func
+#include <stdio.h>
+
+FILE _iob[3];
+int _iob_init = 0;
+
+FILE * __cdecl __iob_func(void)
+{
+	if (_iob_init == 0)
+	{
+		_iob_init = 1;
+		_iob[0] = *stdin;
+		_iob[1] = *stdout;
+		_iob[2] = *stderr;
+	}
+    return _iob;
+}
+#endif
+#endif
+
 /*!
  * @brief Returns a unix timestamp in UTC.
  * @return Integer value representing the UTC Unix timestamp of the current time.

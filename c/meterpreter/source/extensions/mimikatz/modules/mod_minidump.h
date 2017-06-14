@@ -5,7 +5,10 @@
 */
 #pragma once
 #include "globdefs.h"
+#pragma warning(push)
+#pragma warning(disable: 4091)
 #include <dbghelp.h>
+#pragma warning(pop)
 #include "mod_text.h"
 
 class mod_minidump
