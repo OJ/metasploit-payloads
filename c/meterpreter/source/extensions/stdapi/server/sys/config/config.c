@@ -3,6 +3,7 @@
 #include <Sddl.h>
 #include <Lm.h>
 #include <psapi.h>
+#include <NTSecAPI.h>
 
 typedef NTSTATUS(WINAPI *PRtlGetVersion)(LPOSVERSIONINFOEXW);
 
@@ -133,6 +134,42 @@ DWORD get_user_token(LPVOID pTokenUser, DWORD dwBufferSize)
 	return dwResult;
 }
 
+VOID RtlFreeUnicodeString(PUNICODE_STRING unicodeString)
+{
+	typedef VOID(WINAPI*PRtlFreeUnicodeString)(PUNICODE_STRING unicodeString);
+	static PRtlFreeUnicodeString fRtlFreeUnicodeString = NULL;
+
+	if (fRtlFreeUnicodeString == NULL)
+	{
+		fRtlFreeUnicodeString = (PRtlFreeUnicodeString)GetProcAddress(GetModuleHandleA("ntdll"), "RtlFreeUnicodeString");
+	}
+
+	dprintf("[RtlFreeUnicodeString] Function at %p", RtlFreeUnicodeString);
+	if (fRtlFreeUnicodeString != NULL)
+	{
+		fRtlFreeUnicodeString(unicodeString);
+	}
+}
+
+NTSTATUS RtlConvertSidToUnicodeString(PUNICODE_STRING unicodeString, PSID sid, BOOLEAN allocateString)
+{
+	typedef NTSTATUS(WINAPI*PRtlConvertSidToUnicodeString)(PUNICODE_STRING unicodeString, PSID sid, BOOLEAN allocateString);
+	static PRtlConvertSidToUnicodeString fRtlConvertSidToUnicodeString = NULL;
+
+	if (fRtlConvertSidToUnicodeString == NULL)
+	{
+		fRtlConvertSidToUnicodeString = (PRtlConvertSidToUnicodeString)GetProcAddress(GetModuleHandleA("ntdll"), "RtlConvertSidToUnicodeString");
+	}
+
+	dprintf("[RtlConvertSidToUnicodeString] Function at %p", RtlConvertSidToUnicodeString);
+	if (fRtlConvertSidToUnicodeString != NULL)
+	{
+		return fRtlConvertSidToUnicodeString(unicodeString, sid, allocateString);
+	}
+
+	return STATUS_INVALID_HANDLE;
+}
+
 /*
  * @brief Get the SID of the current process/thread.
  * @param pRemote Pointer to the \c Remote instance.
@@ -144,6 +181,7 @@ DWORD request_sys_config_getsid(Remote* pRemote, Packet* pRequest)
 	DWORD dwResult;
 	BYTE tokenUserInfo[4096];
 	LPSTR pSid = NULL;
+	UNICODE_STRING sidString = { 0 };
 	Packet *pResponse = packet_create_response(pRequest);
 
 	do
@@ -154,18 +192,29 @@ DWORD request_sys_config_getsid(Remote* pRemote, Packet* pRequest)
 			break;
 		}
 
-		if (!ConvertSidToStringSidA(((TOKEN_USER*)tokenUserInfo)->User.Sid, &pSid))
+		dprintf("[GETSID] Calling RtlConvertSidToUnicodeString");
+		NTSTATUS result = RtlConvertSidToUnicodeString(&sidString, ((TOKEN_USER*)tokenUserInfo)->User.Sid, TRUE);
+		if (result == 0L)
 		{
-			BREAK_ON_ERROR("[GETSID] Unable to convert current SID to string");
+			dprintf("[GETSID] Calling RtlConvertSidToUnicodeString succeeded");
+			packet_add_tlv_wstring_len(pResponse, TLV_TYPE_SID, sidString.Buffer, sidString.Length);
+			RtlFreeUnicodeString(&sidString);
 		}
-
+		else
+		{
+			dprintf("[GETSID] Calling RtlConvertSidToUnicodeString failed, trying ConvertSidToStringSidA");
+			if (ConvertSidToStringSidA(((TOKEN_USER*)tokenUserInfo)->User.Sid, &pSid))
+			{
+				dprintf("[GETSID] Calling ConvertSidToStringSidA succeeded");
+				packet_add_tlv_string(pResponse, TLV_TYPE_SID, pSid);
+				LocalFree(pSid);
+			}
+			else
+			{
+				dprintf("[GETSID] Calling ConvertSidToStringSidA failed");
+			}
+		}
 	} while (0);
-
-	if (pSid != NULL)
-	{
-		packet_add_tlv_string(pResponse, TLV_TYPE_SID, pSid);
-		LocalFree(pSid);
-	}
 
 	packet_transmit_response(dwResult, pRemote, pResponse);
 
