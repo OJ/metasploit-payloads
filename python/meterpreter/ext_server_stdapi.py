@@ -1478,7 +1478,7 @@ def stdapi_net_config_get_interfaces(request, response):
         if 'mtu' in iface_info:
             iface_tlv += tlv_pack(TLV_TYPE_INTERFACE_MTU, iface_info['mtu'])
         if 'flags' in iface_info:
-            iface_tlv += tlv_pack(TLV_TYPE_INTERFACE_FLAGS, iface_info['flags'])
+            iface_tlv += tlv_pack(TLV_TYPE_INTERFACE_FLAGS, hex(iface_info['flags']))
         iface_tlv += tlv_pack(TLV_TYPE_INTERFACE_INDEX, iface_info['index'])
         for address in iface_info.get('addrs', []):
             iface_tlv += tlv_pack(TLV_TYPE_IP, address[1])
@@ -1560,7 +1560,7 @@ def stdapi_net_config_get_interfaces_via_osx_ifconfig():
     proc_h = subprocess.Popen('/sbin/ifconfig', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if proc_h.wait():
         raise Exception('ifconfig exited with non-zero status')
-    output = proc_h.stdout.read()
+    output = proc_h.stdout.read().decode('UTF-8')
 
     interfaces = []
     iface = {}
