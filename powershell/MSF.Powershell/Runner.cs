@@ -351,12 +351,10 @@ namespace MSF.Powershell
                 if (IsChannelised)
                 {
                     var bytes = System.Text.Encoding.ASCII.GetBytes(message);
-                    System.Diagnostics.Debug.WriteLine(string.Format("[PSH BINDING] Writing to channel {0:X} -{1}", _context, message));
                     _chanWriter(_context, bytes);
                 }
                 else
                 {
-                    //System.Diagnostics.Debug.WriteLine("[PSH BINDING] Writing to buffer: " + message);
                     _buffer.Append(message);
                 }
             }
