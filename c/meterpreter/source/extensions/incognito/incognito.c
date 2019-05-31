@@ -203,14 +203,21 @@ cleanup:
 	return ERROR_SUCCESS;
 }
 
+#define INCOGNITO_ADD_GROUP_USER 5000
+#define INCOGNITO_ADD_LOCALGROUP_USER 5001
+#define INCOGNITO_ADD_USER 5002
+#define INCOGNITO_IMPERSONATE_TOKEN 5003
+#define INCOGNITO_LIST_TOKENS 5004
+#define INCOGNITO_SNARF_HASHES 5005
+
 Command customCommands[] =
 {
-	COMMAND_REQ( "incognito_list_tokens", request_incognito_list_tokens ),
-	COMMAND_REQ( "incognito_impersonate_token", request_incognito_impersonate_token ),
-	COMMAND_REQ( "incognito_add_user", request_incognito_add_user ),
-	COMMAND_REQ( "incognito_add_group_user", request_incognito_add_group_user ),
-	COMMAND_REQ( "incognito_add_localgroup_user", request_incognito_add_localgroup_user ),
-	COMMAND_REQ( "incognito_snarf_hashes", request_incognito_snarf_hashes ),
+	COMMAND_REQ(INCOGNITO_LIST_TOKENS, request_incognito_list_tokens),
+	COMMAND_REQ(INCOGNITO_IMPERSONATE_TOKEN, request_incognito_impersonate_token),
+	COMMAND_REQ(INCOGNITO_ADD_USER, request_incognito_add_user),
+	COMMAND_REQ(INCOGNITO_ADD_GROUP_USER, request_incognito_add_group_user),
+	COMMAND_REQ(INCOGNITO_ADD_LOCALGROUP_USER, request_incognito_add_localgroup_user),
+	COMMAND_REQ(INCOGNITO_SNARF_HASHES, request_incognito_snarf_hashes),
 	COMMAND_TERMINATOR
 };
 

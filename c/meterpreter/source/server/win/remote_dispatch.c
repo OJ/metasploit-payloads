@@ -97,7 +97,7 @@ DWORD load_extension(HMODULE hLibrary, BOOL bLibLoadedReflectivly, Remote* remot
 				{
 					for (Command* command = pExtension->end; command != NULL; command = command->next)
 					{
-						pExtension->commandAdded(command->method);
+						pExtension->commandAdded(command->methodId);
 					}
 				}
 
@@ -119,7 +119,7 @@ DWORD load_extension(HMODULE hLibrary, BOOL bLibLoadedReflectivly, Remote* remot
 		{
 			for (Command* command = pExtension->start; command != pExtension->end; command = command->next)
 			{
-				packet_add_tlv_string(response, TLV_TYPE_METHOD, command->method);
+				packet_add_tlv_uint(response, TLV_TYPE_UINT, command->methodId);
 
 				// inform existing extensions of the new commands
 				for (PNODE node = gExtensionList->start; node != NULL; node = node->next)
@@ -128,7 +128,7 @@ DWORD load_extension(HMODULE hLibrary, BOOL bLibLoadedReflectivly, Remote* remot
 					// don't inform the extension of itself
 					if (ext != pExtension && ext->commandAdded)
 					{
-						ext->commandAdded(command->method);
+						ext->commandAdded(command->methodId);
 					}
 				}
 			}

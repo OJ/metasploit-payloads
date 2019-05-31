@@ -11,18 +11,26 @@
 // this sets the delay load hook function, see DelayLoadMetSrv.h
 EnableDelayLoadMetSrv();
 
+#define PRIV_ELEVATE_GETSYSTEM 3000
+#define PRIV_FS_BLANK_DIRECTORY_MACE 3001
+#define PRIV_FS_BLANK_FILE_MACE 3002
+#define PRIV_FS_GET_FILE_MACE 3003
+#define PRIV_FS_SET_FILE_MACE 3004
+#define PRIV_FS_SET_FILE_MACE_FROM_FILE 3005
+#define PRIV_PASSWD_GET_SAM_HASHES 3006
+
 /*!
  * @brief `priv` extension dispatch table.
  */
 Command customCommands[] =
 {
-	COMMAND_REQ( "priv_elevate_getsystem", elevate_getsystem ),
-	COMMAND_REQ( "priv_passwd_get_sam_hashes", request_passwd_get_sam_hashes ),
-	COMMAND_REQ( "priv_fs_get_file_mace", request_fs_get_file_mace ),
-	COMMAND_REQ( "priv_fs_set_file_mace", request_fs_set_file_mace ),
-	COMMAND_REQ( "priv_fs_set_file_mace_from_file", request_fs_set_file_mace_from_file ),
-	COMMAND_REQ( "priv_fs_blank_file_mace", request_fs_blank_file_mace ),
-	COMMAND_REQ( "priv_fs_blank_directory_mace", request_fs_blank_directory_mace ),
+	COMMAND_REQ(PRIV_ELEVATE_GETSYSTEM, elevate_getsystem),
+	COMMAND_REQ(PRIV_PASSWD_GET_SAM_HASHES, request_passwd_get_sam_hashes),
+	COMMAND_REQ(PRIV_FS_GET_FILE_MACE, request_fs_get_file_mace),
+	COMMAND_REQ(PRIV_FS_SET_FILE_MACE, request_fs_set_file_mace),
+	COMMAND_REQ(PRIV_FS_SET_FILE_MACE_FROM_FILE, request_fs_set_file_mace_from_file),
+	COMMAND_REQ(PRIV_FS_BLANK_FILE_MACE, request_fs_blank_file_mace),
+	COMMAND_REQ(PRIV_FS_BLANK_DIRECTORY_MACE, request_fs_blank_directory_mace),
 	COMMAND_TERMINATOR
 };
 

@@ -18,13 +18,18 @@ EnableDelayLoadMetSrv();
 
 static BOOL gSuccessfullyLoaded = FALSE;
 
+#define POWERSHELL_ASSEMBLY_LOAD 15000
+#define POWERSHELL_EXECUTE 15001
+#define POWERSHELL_SESSION_REMOVE 15002
+#define POWERSHELL_SHELL 15003
+
 /*! @brief List of commands that the powershell extension provides. */
 Command customCommands[] =
 {
-	COMMAND_REQ("powershell_execute", request_powershell_execute),
-	COMMAND_REQ("powershell_shell", request_powershell_shell),
-	COMMAND_REQ("powershell_assembly_load", request_powershell_assembly_load),
-	COMMAND_REQ("powershell_session_remove", request_powershell_session_remove),
+	COMMAND_REQ(POWERSHELL_EXECUTE, request_powershell_execute),
+	COMMAND_REQ(POWERSHELL_SHELL, request_powershell_shell),
+	COMMAND_REQ(POWERSHELL_ASSEMBLY_LOAD, request_powershell_assembly_load),
+	COMMAND_REQ(POWERSHELL_SESSION_REMOVE, request_powershell_session_remove),
 	COMMAND_TERMINATOR
 };
 

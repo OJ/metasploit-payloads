@@ -3,6 +3,7 @@
  * @brief Definitions for functions that support meterpreter bindings.
  */
 #include "../../common/common.h"
+#include "../../common/tlv.h"
 #include "python_main.h"
 #include "Python.h"
 
@@ -66,14 +67,16 @@ VOID binding_startup()
 	}
 }
 
-VOID binding_add_command(const char* commandName)
+VOID binding_add_command(const UINT methodId)
 {
-	dprintf("[PYTHON] Adding command %s", (char*)commandName);
+	dprintf("[PYTHON] Adding command %u", methodId);
 
 	// only add non-core commands
-	if (_strnicmp("core_", commandName, 5) != 0)
+	if (methodId > CORE_METHOD_MAX)
 	{
-		list_add(gBoundCommandList, (char*)commandName);
+		CHAR commandName[32] = { 0 };
+		_snprintf_s(commandName, sizeof(commandName), sizeof(commandName) - 1, "binding_%u", methodId);
+		list_add(gBoundCommandList, strdup(commandName));
 		binding_insert_command(commandName);
 	}
 }

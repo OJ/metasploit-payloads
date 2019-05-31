@@ -159,17 +159,27 @@ DWORD request_lanattacks_stop_tftp(Remote *remote, Packet *packet)
 	return ERROR_SUCCESS;
 }
 
+#define LANATTACKS_ADD_TFTP_FILE 11000
+#define LANATTACKS_DHCP_LOG 11001
+#define LANATTACKS_RESET_DHCP 11002
+#define LANATTACKS_RESET_TFTP 11003
+#define LANATTACKS_SET_DHCP_OPTION 11004
+#define LANATTACKS_START_DHCP 11005
+#define LANATTACKS_START_TFTP 11006
+#define LANATTACKS_STOP_DHCP 11007
+#define LANATTACKS_STOP_TFTP 11008
+
 Command customCommands[] =
 {
-	COMMAND_REQ("lanattacks_start_dhcp", request_lanattacks_start_dhcp),
-	COMMAND_REQ("lanattacks_reset_dhcp", request_lanattacks_reset_dhcp),
-	COMMAND_REQ("lanattacks_set_dhcp_option", request_lanattacks_set_dhcp_option),
-	COMMAND_REQ("lanattacks_stop_dhcp", request_lanattacks_stop_dhcp),
-	COMMAND_REQ("lanattacks_dhcp_log", request_lanattacks_dhcp_log),
-	COMMAND_REQ("lanattacks_start_tftp", request_lanattacks_start_tftp),
-	COMMAND_REQ("lanattacks_reset_tftp", request_lanattacks_stop_tftp),
-	COMMAND_REQ("lanattacks_add_tftp_file", request_lanattacks_add_tftp_file),
-	COMMAND_REQ("lanattacks_stop_tftp", request_lanattacks_stop_tftp),
+	COMMAND_REQ(LANATTACKS_START_DHCP, request_lanattacks_start_dhcp),
+	COMMAND_REQ(LANATTACKS_RESET_DHCP, request_lanattacks_reset_dhcp),
+	COMMAND_REQ(LANATTACKS_SET_DHCP_OPTION, request_lanattacks_set_dhcp_option),
+	COMMAND_REQ(LANATTACKS_STOP_DHCP, request_lanattacks_stop_dhcp),
+	COMMAND_REQ(LANATTACKS_DHCP_LOG, request_lanattacks_dhcp_log),
+	COMMAND_REQ(LANATTACKS_START_TFTP, request_lanattacks_start_tftp),
+	COMMAND_REQ(LANATTACKS_RESET_TFTP, request_lanattacks_stop_tftp),
+	COMMAND_REQ(LANATTACKS_ADD_TFTP_FILE, request_lanattacks_add_tftp_file),
+	COMMAND_REQ(LANATTACKS_STOP_TFTP, request_lanattacks_stop_tftp),
 	COMMAND_TERMINATOR
 };
 

@@ -15,6 +15,14 @@ DWORD request_sniffer_capture_release(Remote *remote, Packet *packet);
 DWORD request_sniffer_capture_dump(Remote *remote, Packet *packet);
 DWORD request_sniffer_capture_dump_read(Remote *remote, Packet *packet);
 
+#define SNIFFER_CAPTURE_DUMP 17000
+#define SNIFFER_CAPTURE_DUMP_READ 17001
+#define SNIFFER_CAPTURE_RELEASE 17002
+#define SNIFFER_CAPTURE_START 17003
+#define SNIFFER_CAPTURE_STATS 17004
+#define SNIFFER_CAPTURE_STOP 17005
+#define SNIFFER_INTERFACES 17006
+
 /*! @brief List of custom commands provided by the sniffer extension. */
 Command customCommands[] =
 {

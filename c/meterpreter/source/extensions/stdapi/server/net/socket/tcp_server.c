@@ -4,6 +4,7 @@
  */
 #include "precomp.h"
 #include "tcp.h"
+#include "../../../../../common/tlv.h"
 
 #include <ws2tcpip.h>
 
@@ -245,7 +246,7 @@ DWORD tcp_channel_server_notify(Remote * remote, TcpServerContext * serverCtx)
 
 		dprintf("[TCP-SERVER] tcp_channel_server_notify. New connection %s:%d <- %s:%d", localhost, localport, peerhost, peerport);
 
-		request = packet_create(PACKET_TLV_TYPE_REQUEST, "tcp_channel_open");
+		request = packet_create(PACKET_TLV_TYPE_REQUEST, STDAPI_TCP_CHANNEL_OPEN);
 		if (!request)
 		{
 			BREAK_WITH_ERROR("[TCP-SERVER] request_net_tcp_server_channel_open. packet_create failed", ERROR_INVALID_HANDLE);

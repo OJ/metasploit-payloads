@@ -86,9 +86,11 @@ DWORD request_custom_command(Remote *remote, Packet *packet)
 	return ERROR_SUCCESS;	
 }
 
+#define MIMIKATZ_CUSTOM_COMMAND 12000
+
 Command customCommands[] =
 {
-	COMMAND_REQ( "mimikatz_custom_command", request_custom_command ),
+	COMMAND_REQ(MIMIKATZ_CUSTOM_COMMAND, request_custom_command),
 	COMMAND_TERMINATOR
 };
 

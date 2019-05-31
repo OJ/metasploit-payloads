@@ -1,5 +1,5 @@
 #define DEBUGTRACE 1
-extern "C"{
+extern "C" {
 	/*!
 	 * @file WINPMEM.cpp
 	 * @brief Entry point and intialisation functionality for the WINPMEM extention.
@@ -15,11 +15,13 @@ extern "C"{
 	// this sets the delay load hook function, see DelayLoadMetSrv.h
 	EnableDelayLoadMetSrv();
 
+#define DUMP_RAM 9000
+
 	DWORD dump_ram(Remote *remote, Packet *packet);
 
 	Command customCommands[] =
 	{
-		COMMAND_REQ("dump_ram", dump_ram),
+		COMMAND_REQ(DUMP_RAM, dump_ram),
 		COMMAND_TERMINATOR
 	};
 

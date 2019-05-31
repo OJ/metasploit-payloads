@@ -16,14 +16,18 @@
 
 // NOTE: _CRT_SECURE_NO_WARNINGS has been added to Configuration->C/C++->Preprocessor->Preprocessor
 
+#define ESPIA_AUDIO_GET_DEV_AUDIO 10000
+#define ESPIA_IMAGE_GET_DEV_SCREEN 10001
+#define ESPIA_VIDEO_GET_DEV_IMAGE 10002
+
 // this sets the delay load hook function, see DelayLoadMetSrv.h
 EnableDelayLoadMetSrv();
 
 Command customCommands[] =
 {
-	COMMAND_REQ( "espia_video_get_dev_image", request_video_get_dev_image ),
-	COMMAND_REQ( "espia_audio_get_dev_audio", request_audio_get_dev_audio ),
-	COMMAND_REQ( "espia_image_get_dev_screen", request_image_get_dev_screen ),
+	COMMAND_REQ(ESPIA_VIDEO_GET_DEV_IMAGE, request_video_get_dev_image),
+	COMMAND_REQ(ESPIA_AUDIO_GET_DEV_AUDIO, request_audio_get_dev_audio),
+	COMMAND_REQ(ESPIA_IMAGE_GET_DEV_SCREEN, request_image_get_dev_screen),
 	COMMAND_TERMINATOR
 };
 

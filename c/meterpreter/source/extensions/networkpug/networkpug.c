@@ -428,10 +428,13 @@ DWORD request_networkpug_stop(Remote *remote, Packet *packet)
 	return ERROR_SUCCESS;
 }
 
+#define NETWORKPUG_START 13000
+#define NETWORKPUG_STOP 13001
+
 Command customCommands[] =
 {
-	COMMAND_REQ("networkpug_start", request_networkpug_start),
-	COMMAND_REQ("networkpug_stop", request_networkpug_stop),
+	COMMAND_REQ(NETWORKPUG_START, request_networkpug_start),
+	COMMAND_REQ(NETWORKPUG_STOP, request_networkpug_stop),
 	COMMAND_TERMINATOR
 };
 

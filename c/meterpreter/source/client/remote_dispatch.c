@@ -44,11 +44,14 @@ DWORD ex_remote_request_core_channel_close(Remote *remote, Packet *packet)
  * Custom dispatch routines *
  ****************************/
 
+#define CORE_CHANNEL_CLOSE 1000
+#define CORE_CHANNEL_OPEN 1003
+
 // Dispatch table
 Command customCommands[] = 
 {
-	COMMAND_REP("core_channel_open", ex_remote_response_core_channel_open),
-	COMMAND_REP("core_channel_close", ex_remote_response_core_channel_cloase),
+	COMMAND_REP(CORE_CHANNEL_OPEN, ex_remote_response_core_channel_open),
+	COMMAND_REP(CORE_CHANNEL_CLOSE, ex_remote_response_core_channel_cloase),
 	COMMAND_TERMINATOR
 };
 

@@ -100,10 +100,11 @@ typedef DWORD TlvMetaType;
 typedef enum
 {
 	TLV_TYPE_ANY                 = TLV_VALUE(TLV_META_TYPE_NONE,        0),   ///! Represents an undefined/arbitrary value.
-	TLV_TYPE_METHOD              = TLV_VALUE(TLV_META_TYPE_STRING,      1),   ///! Represents a method/function name value.
+	TLV_TYPE_METHOD              = TLV_VALUE(TLV_META_TYPE_STRING,      1),   ///! Represents a method/function name value. (deprecated)
 	TLV_TYPE_REQUEST_ID          = TLV_VALUE(TLV_META_TYPE_STRING,      2),   ///! Represents a request identifier value.
 	TLV_TYPE_EXCEPTION           = TLV_VALUE(TLV_META_TYPE_GROUP,       3),   ///! Represents an exception value.
 	TLV_TYPE_RESULT              = TLV_VALUE(TLV_META_TYPE_UINT,        4),   ///! Represents a result value.
+	TLV_TYPE_METHOD_ID           = TLV_VALUE(TLV_META_TYPE_UINT,        5),   ///! Represents a method/function name value ID.
 
 	// Argument basic types
 	TLV_TYPE_STRING              = TLV_VALUE(TLV_META_TYPE_STRING,     10),   ///! Represents a string value.
@@ -235,7 +236,7 @@ typedef struct _DECOMPRESSED_BUFFER
 
 /*! * @brief Packet request completion notification handler function pointer type. */
 typedef DWORD (*PacketRequestCompletionRoutine)(Remote *remote,
-		Packet *response, LPVOID context, LPCSTR method, DWORD result);
+		Packet *response, LPVOID context, UINT method, DWORD result);
 
 typedef struct _PacketRequestCompletion
 {
@@ -247,7 +248,7 @@ typedef struct _PacketRequestCompletion
 /*
  * Packet manipulation
  */
-LINKAGE Packet *packet_create(PacketTlvType type, LPCSTR method);
+LINKAGE Packet *packet_create(PacketTlvType type, UINT methodId);
 LINKAGE Packet *packet_create_response(Packet *packet);
 LINKAGE Packet* packet_create_group();
 LINKAGE Packet *packet_duplicate(Packet *packet);

@@ -13,9 +13,11 @@
 // this sets the delay load hook function, see DelayLoadMetSrv.h
 EnableDelayLoadMetSrv();
 
+#define PEINJECTOR_INJECT_SHELLCODE 14000
+
 Command customCommands[] =
 {
-	COMMAND_REQ("peinjector_inject_shellcode", request_peinjector_inject_shellcode),
+	COMMAND_REQ(PEINJECTOR_INJECT_SHELLCODE, request_peinjector_inject_shellcode),
 	COMMAND_TERMINATOR
 };
 

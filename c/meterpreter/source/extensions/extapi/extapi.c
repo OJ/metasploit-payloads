@@ -18,28 +18,45 @@
 #include "ntds.h"
 #include "pageantjacker.h"
 
+#define EXTAPI_ADSI_DOMAIN_QUERY 4000
+#define EXTAPI_CLIPBOARD_GET_DATA 4001
+#define EXTAPI_CLIPBOARD_MONITOR_DUMP 4002
+#define EXTAPI_CLIPBOARD_MONITOR_PAUSE 4003
+#define EXTAPI_CLIPBOARD_MONITOR_PURGE 4004
+#define EXTAPI_CLIPBOARD_MONITOR_RESUME 4005
+#define EXTAPI_CLIPBOARD_MONITOR_START 4006
+#define EXTAPI_CLIPBOARD_MONITOR_STOP 4007
+#define EXTAPI_CLIPBOARD_SET_DATA 4008
+#define EXTAPI_NTDS_PARSE 4009
+#define EXTAPI_PAGEANT_SEND_QUERY 4010
+#define EXTAPI_SERVICE_CONTROL 4011
+#define EXTAPI_SERVICE_ENUM 4012
+#define EXTAPI_SERVICE_QUERY 4013
+#define EXTAPI_WINDOW_ENUM 4014
+#define EXTAPI_WMI_QUERY 4015
+
 // this sets the delay load hook function, see DelayLoadMetSrv.h
 EnableDelayLoadMetSrv();
 
 /*! @brief List of commands that the extended API extension providers. */
 Command customCommands[] =
 {
-	COMMAND_REQ("extapi_window_enum", request_window_enum),
-	COMMAND_REQ("extapi_service_enum", request_service_enum),
-	COMMAND_REQ("extapi_service_query", request_service_query),
-	COMMAND_REQ("extapi_service_control", request_service_control),
-	COMMAND_REQ("extapi_clipboard_get_data", request_clipboard_get_data),
-	COMMAND_REQ("extapi_clipboard_set_data", request_clipboard_set_data),
-	COMMAND_REQ("extapi_clipboard_monitor_start", request_clipboard_monitor_start),
-	COMMAND_REQ("extapi_clipboard_monitor_pause", request_clipboard_monitor_pause),
-	COMMAND_REQ("extapi_clipboard_monitor_resume", request_clipboard_monitor_resume),
-	COMMAND_REQ("extapi_clipboard_monitor_purge", request_clipboard_monitor_purge),
-	COMMAND_REQ("extapi_clipboard_monitor_stop", request_clipboard_monitor_stop),
-	COMMAND_REQ("extapi_clipboard_monitor_dump", request_clipboard_monitor_dump),
-	COMMAND_REQ("extapi_adsi_domain_query", request_adsi_domain_query),
-	COMMAND_REQ("extapi_ntds_parse", ntds_parse),
-	COMMAND_REQ("extapi_wmi_query", request_wmi_query),
-	COMMAND_REQ("extapi_pageant_send_query", request_pageant_send_query),
+	COMMAND_REQ(EXTAPI_WINDOW_ENUM, request_window_enum),
+	COMMAND_REQ(EXTAPI_SERVICE_ENUM, request_service_enum),
+	COMMAND_REQ(EXTAPI_SERVICE_QUERY, request_service_query),
+	COMMAND_REQ(EXTAPI_SERVICE_CONTROL, request_service_control),
+	COMMAND_REQ(EXTAPI_CLIPBOARD_GET_DATA, request_clipboard_get_data),
+	COMMAND_REQ(EXTAPI_CLIPBOARD_SET_DATA, request_clipboard_set_data),
+	COMMAND_REQ(EXTAPI_CLIPBOARD_MONITOR_START, request_clipboard_monitor_start),
+	COMMAND_REQ(EXTAPI_CLIPBOARD_MONITOR_PAUSE, request_clipboard_monitor_pause),
+	COMMAND_REQ(EXTAPI_CLIPBOARD_MONITOR_RESUME, request_clipboard_monitor_resume),
+	COMMAND_REQ(EXTAPI_CLIPBOARD_MONITOR_PURGE, request_clipboard_monitor_purge),
+	COMMAND_REQ(EXTAPI_CLIPBOARD_MONITOR_STOP, request_clipboard_monitor_stop),
+	COMMAND_REQ(EXTAPI_CLIPBOARD_MONITOR_DUMP, request_clipboard_monitor_dump),
+	COMMAND_REQ(EXTAPI_ADSI_DOMAIN_QUERY, request_adsi_domain_query),
+	COMMAND_REQ(EXTAPI_NTDS_PARSE, ntds_parse),
+	COMMAND_REQ(EXTAPI_WMI_QUERY, request_wmi_query),
+	COMMAND_REQ(EXTAPI_PAGEANT_SEND_QUERY, request_pageant_send_query),
 	COMMAND_TERMINATOR
 };
 

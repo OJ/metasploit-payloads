@@ -274,6 +274,7 @@ copy /y "$(TargetDir)$(TargetFileName)" "$(ProjectDir)..\..\output\$(PlatformSho
     <ClInclude Include="..\..\source\common\remote.h" />
     <ClInclude Include="..\..\source\common\scheduler.h" />
     <ClInclude Include="..\..\source\common\thread.h" />
+    <ClInclude Include="..\..\source\common\tlv.h" />
     <ClInclude Include="..\..\source\common\unicode.h" />
     <ClInclude Include="..\..\source\common\zlib\zlib.h" />
   </ItemGroup>

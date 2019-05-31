@@ -13,18 +13,28 @@ DWORD request_core_set_session_guid(Remote* remote, Packet* packet);
 DWORD request_core_set_uuid(Remote* remote, Packet* packet);
 BOOL request_core_patch_url(Remote* remote, Packet* packet, DWORD* result);
 
+#define CORE_ENUMEXTCMD 1009
+#define CORE_GET_SESSION_GUID 1010
+#define CORE_LOADLIB 1011
+#define CORE_MACHINE_ID 1012
+#define CORE_PIVOT_ADD 1016
+#define CORE_PIVOT_REMOVE 1017
+#define CORE_SET_SESSION_GUID 1018
+#define CORE_SET_UUID 1019
+#define CORE_PATCH_URL 1031
+
 // Dispatch table
 Command customCommands[] =
 {
-	COMMAND_REQ("core_loadlib", request_core_loadlib),
-	COMMAND_REQ("core_enumextcmd", request_core_enumextcmd),
-	COMMAND_REQ("core_machine_id", request_core_machine_id),
-	COMMAND_REQ("core_get_session_guid", request_core_get_session_guid),
-	COMMAND_REQ("core_set_session_guid", request_core_set_session_guid),
-	COMMAND_REQ("core_set_uuid", request_core_set_uuid),
-	COMMAND_REQ("core_pivot_add", request_core_pivot_add),
-	COMMAND_REQ("core_pivot_remove", request_core_pivot_remove),
-	COMMAND_INLINE_REP("core_patch_url", request_core_patch_url),
+	COMMAND_REQ(CORE_LOADLIB, request_core_loadlib),
+	COMMAND_REQ(CORE_ENUMEXTCMD, request_core_enumextcmd),
+	COMMAND_REQ(CORE_MACHINE_ID, request_core_machine_id),
+	COMMAND_REQ(CORE_GET_SESSION_GUID, request_core_get_session_guid),
+	COMMAND_REQ(CORE_SET_SESSION_GUID, request_core_set_session_guid),
+	COMMAND_REQ(CORE_SET_UUID, request_core_set_uuid),
+	COMMAND_REQ(CORE_PIVOT_ADD, request_core_pivot_add),
+	COMMAND_REQ(CORE_PIVOT_REMOVE, request_core_pivot_remove),
+	COMMAND_INLINE_REP(CORE_PATCH_URL, request_core_patch_url),
 	COMMAND_TERMINATOR
 };
 
@@ -47,7 +57,7 @@ BOOL ext_cmd_callback(LPVOID pState, LPVOID pData)
 			dprintf("[LISTEXT] Found extension: %s", pExt->name);
 			for (command = pExt->start; command != pExt->end; command = command->next)
 			{
-				packet_add_tlv_string(pEnum->pResponse, TLV_TYPE_STRING, command->method);
+				packet_add_tlv_uint(pEnum->pResponse, TLV_TYPE_UINT, command->methodId);
 			}
 			dprintf("[LISTEXT] Finished listing extension: %s", pExt->name);
 

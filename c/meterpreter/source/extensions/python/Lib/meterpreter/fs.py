@@ -4,7 +4,7 @@ from meterpreter.core import *
 from meterpreter.tlv import *
 
 def show_mount():
-  resp = invoke_meterpreter('stdapi_fs_mount_show', True)
+  resp = invoke_meterpreter(STDAPI_FS_MOUNT_SHOW, True)
   if resp == None:
       return False
 

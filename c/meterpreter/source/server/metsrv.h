@@ -28,7 +28,7 @@ DWORD server_setup(MetsrvConfig* config);
 typedef DWORD (*PSRVINIT)(Remote *remote);
 typedef DWORD (*PSRVDEINIT)(Remote *remote);
 typedef DWORD (*PSRVGETNAME)(char* buffer, int bufferSize);
-typedef VOID (*PCMDADDED)(const char* commandName);
+typedef VOID (*PCMDADDED)(const UINT methodId);
 typedef DWORD (*PSTAGELESSINIT)(LPBYTE data, DWORD dataSize);
 
 typedef struct _EXTENSION

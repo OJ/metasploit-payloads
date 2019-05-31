@@ -60,7 +60,7 @@ def domain_query(domain_name, query_filter, fields, max_results = None, page_siz
   for f in fields:
     tlv += tlv_pack(TLV_TYPE_EXTAPI_ADSI_FIELD, f)
 
-  resp = invoke_meterpreter('extapi_adsi_domain_query', True, tlv)
+  resp = invoke_meterpreter(EXTAPI_ADSI_DOMAIN_QUERY, True, tlv)
   if resp == None:
     return None
 

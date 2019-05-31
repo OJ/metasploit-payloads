@@ -18,10 +18,12 @@ DWORD unhook_pe(Remote *remote, Packet *packet);
 // this sets the delay load hook function, see DelayLoadMetSrv.h
 EnableDelayLoadMetSrv();
 
+#define UNHOOK_PE 18000
+
 Command customCommands[] =
 {
 	// custom commands go here
-	COMMAND_REQ("unhook_pe", unhook_pe),
+	COMMAND_REQ(UNHOOK_PE, unhook_pe),
 
 	COMMAND_TERMINATOR
 };

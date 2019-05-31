@@ -1,4 +1,5 @@
 #include "common.h"
+#include "tlv.h"
 
 // List insertion and removal 
 VOID channel_add_list_entry(Channel *channel);
@@ -264,8 +265,7 @@ PVOID channel_get_buffered_io_context(Channel *channel)
 DWORD channel_write_to_remote(Remote *remote, Channel *channel, PUCHAR chunk, 
 		ULONG chunkLength, PULONG bytesWritten)
 {
-	Packet *request = packet_create(PACKET_TLV_TYPE_REQUEST, 
-			"core_channel_write");
+	Packet *request = packet_create(PACKET_TLV_TYPE_REQUEST, CORE_CHANNEL_WRITE);
 	DWORD res = ERROR_SUCCESS;
 	Tlv entries[2];
 	DWORD idNbo;
@@ -390,7 +390,7 @@ ChannelCompletionRoutine *channel_duplicate_completion_routine(
  * Channel completion routine dispatcher
  */
 DWORD _channel_packet_completion_routine(Remote *remote, Packet *packet, 
-		LPVOID context, LPCSTR method, DWORD result)
+		LPVOID context, UINT methodId, DWORD result)
 {
 	ChannelCompletionRoutine *comp = (ChannelCompletionRoutine *)context;
 	DWORD channelId = packet_get_tlv_value_uint(packet, TLV_TYPE_CHANNEL_ID);
@@ -398,17 +398,17 @@ DWORD _channel_packet_completion_routine(Remote *remote, Packet *packet,
 	DWORD res = ERROR_NOT_FOUND;
 
 
-	dprintf( "[CHANNEL] _channel_packet_completion_routine. channel=0x%08X method=%s", channel, method );
+	dprintf( "[CHANNEL] _channel_packet_completion_routine. channel=0x%08X methodId=%u", channel, methodId );
 
 	// If the channel was not found and it isn't an open request, return failure
-	if (!channel && strcmp(method, "core_channel_open"))
+	if (!channel && methodId != CORE_CHANNEL_OPEN)
 		return ERROR_NOT_FOUND;
 
-	if ((!strcmp(method, "core_channel_open")) &&
-	    (comp->routine.open))
+	if (methodId == CORE_CHANNEL_OPEN && comp->routine.open)
+  {
 		res = comp->routine.open(remote, channel, comp->context, result);
-	else if ((!strcmp(method, "core_channel_read")) &&
-	         (comp->routine.read))
+  }
+	else if (methodId == CORE_CHANNEL_READ &&	comp->routine.read)
 	{
 		ULONG length = 0, realLength = 0;
 		PUCHAR buffer = NULL;
@@ -430,8 +430,7 @@ DWORD _channel_packet_completion_routine(Remote *remote, Packet *packet,
 		if (buffer)
 			free(buffer);
 	}
-	else if ((!strcmp(method, "core_channel_write")) &&
-	         (comp->routine.write))
+	else if (methodId == CORE_CHANNEL_WRITE && comp->routine.write)
 	{
 		Tlv lengthTlv;
 		ULONG length = 0;
@@ -445,14 +444,15 @@ DWORD _channel_packet_completion_routine(Remote *remote, Packet *packet,
 		res = comp->routine.write(remote, channel, comp->context, result,
 				length);
 	}
-	else if ((!strcmp(method, "core_channel_close")) &&
-	         (comp->routine.close)) {
+	else if (methodId == CORE_CHANNEL_CLOSE &&comp->routine.close)
+  {
 		dprintf( "[CHANNEL] freeing up the completion context" );
 		res = comp->routine.close(remote, channel, comp->context, result);
 	}
-	else if ((!strcmp(method, "core_channel_interact")) &&
-	         (comp->routine.interact))
+	else if (methodId == CORE_CHANNEL_INTERACT &&	comp->routine.interact)
+	{
 		res = comp->routine.interact(remote, channel, comp->context, result);
+	}
 
 	// Deallocate the completion context
 	dprintf( "[CHANNEL] freeing up the completion context" );
@@ -470,14 +470,13 @@ DWORD channel_open(Remote *remote, Tlv *addend, DWORD addendLength, ChannelCompl
 	PacketRequestCompletion requestCompletion, *realRequestCompletion = NULL;
 	ChannelCompletionRoutine *dupe = NULL;
 	DWORD res = ERROR_SUCCESS;
-	PCHAR method = "core_channel_open";
 	Packet *request;
 	Tlv methodTlv;
 
 	do
 	{
 		// Allocate the request
-		if (!(request = packet_create(PACKET_TLV_TYPE_REQUEST, NULL)))
+		if (!(request = packet_create(PACKET_TLV_TYPE_REQUEST, 0)))
 		{
 			res = ERROR_NOT_ENOUGH_MEMORY;
 			break;
@@ -487,9 +486,9 @@ DWORD channel_open(Remote *remote, Tlv *addend, DWORD addendLength, ChannelCompl
 		packet_add_tlvs(request, addend, addendLength);
 
 		// If no method TLV as added, add the default one.
-		if (packet_get_tlv(request, TLV_TYPE_METHOD, &methodTlv) != ERROR_SUCCESS)
+		if (packet_get_tlv(request, TLV_TYPE_METHOD_ID, &methodTlv) != ERROR_SUCCESS)
 		{
-			packet_add_tlv_string(request, TLV_TYPE_METHOD, method);
+			packet_add_tlv_uint(request, TLV_TYPE_METHOD_ID, CORE_CHANNEL_OPEN);
 		}
 
 		// Initialize the packet completion routine
@@ -522,13 +521,12 @@ DWORD channel_read(Channel *channel, Remote *remote, Tlv *addend,
 	ChannelCompletionRoutine *dupe = NULL;
 	Packet *request;
 	DWORD res = ERROR_SUCCESS;
-	PCHAR method = "core_channel_read";
 	Tlv methodTlv;
 
 	do
 	{
 		// Allocate an empty request
-		if (!(request = packet_create(PACKET_TLV_TYPE_REQUEST, NULL)))
+		if (!(request = packet_create(PACKET_TLV_TYPE_REQUEST, 0)))
 		{
 			res = ERROR_NOT_ENOUGH_MEMORY;
 			break;
@@ -538,9 +536,9 @@ DWORD channel_read(Channel *channel, Remote *remote, Tlv *addend,
 		packet_add_tlvs(request, addend, addendLength);
 
 		// If no method TLV as added, add the default one.
-		if (packet_get_tlv(request, TLV_TYPE_METHOD, &methodTlv) != ERROR_SUCCESS)
+		if (packet_get_tlv(request, TLV_TYPE_METHOD_ID, &methodTlv) != ERROR_SUCCESS)
 		{
-			packet_add_tlv_string(request, TLV_TYPE_METHOD, method);
+			packet_add_tlv_uint(request, TLV_TYPE_METHOD_ID, CORE_CHANNEL_READ);
 		}
 
 		// Add the channel identifier and the length to read
@@ -576,14 +574,13 @@ DWORD channel_write(Channel *channel, Remote *remote, Tlv *addend,
 	PacketRequestCompletion requestCompletion, *realRequestCompletion = NULL;
 	ChannelCompletionRoutine *dupe = NULL;
 	DWORD res = ERROR_SUCCESS;
-	LPCSTR method = "core_channel_write";
 	Packet *request;
 	Tlv methodTlv;
 
 	do
 	{
 		// Allocate a request packet
-		if (!(request = packet_create(PACKET_TLV_TYPE_REQUEST, NULL)))
+		if (!(request = packet_create(PACKET_TLV_TYPE_REQUEST, 0)))
 		{
 			res = ERROR_NOT_ENOUGH_MEMORY;
 			break;
@@ -593,9 +590,9 @@ DWORD channel_write(Channel *channel, Remote *remote, Tlv *addend,
 		packet_add_tlvs(request, addend, addendLength);
 
 		// If no method TLV as added, add the default one.
-		if (packet_get_tlv(request, TLV_TYPE_METHOD, &methodTlv) != ERROR_SUCCESS)
+		if (packet_get_tlv(request, TLV_TYPE_METHOD_ID, &methodTlv) != ERROR_SUCCESS)
 		{
-			packet_add_tlv_string(request, TLV_TYPE_METHOD, method);
+			packet_add_tlv_uint(request, TLV_TYPE_METHOD_ID, CORE_CHANNEL_WRITE);
 		}
 
 		// Add the channel identifier and the length to write
@@ -640,14 +637,13 @@ DWORD channel_close(Channel *channel, Remote *remote, Tlv *addend,
 {
 	PacketRequestCompletion requestCompletion, *realRequestCompletion = NULL;
 	ChannelCompletionRoutine *dupe = NULL;
-	LPCSTR method = "core_channel_close";
 	DWORD res = ERROR_SUCCESS;
 	Packet *request;
 	Tlv methodTlv;
 
 	do
 	{
-		if (!(request = packet_create(PACKET_TLV_TYPE_REQUEST, NULL)))
+		if (!(request = packet_create(PACKET_TLV_TYPE_REQUEST, 0)))
 		{
 			res = ERROR_NOT_ENOUGH_MEMORY;
 			break;
@@ -657,9 +653,9 @@ DWORD channel_close(Channel *channel, Remote *remote, Tlv *addend,
 		packet_add_tlvs(request, addend, addendLength);
 
 		// If no method TLV as added, add the default one.
-		if (packet_get_tlv(request, TLV_TYPE_METHOD, &methodTlv) != ERROR_SUCCESS)
+		if (packet_get_tlv(request, TLV_TYPE_METHOD_ID, &methodTlv) != ERROR_SUCCESS)
 		{
-			packet_add_tlv_string(request, TLV_TYPE_METHOD, method);
+			packet_add_tlv_uint(request, TLV_TYPE_METHOD_ID, CORE_CHANNEL_CLOSE);
 		}
 
 		// Add the channel identifier
@@ -696,14 +692,13 @@ DWORD channel_interact(Channel *channel, Remote *remote, Tlv *addend,
 {
 	PacketRequestCompletion requestCompletion, *realRequestCompletion = NULL;
 	ChannelCompletionRoutine *dupe = NULL;
-	LPCSTR method = "core_channel_interact";
 	DWORD res = ERROR_SUCCESS;
 	Packet *request;
 	Tlv methodTlv;
 
 	do
 	{
-		if (!(request = packet_create(PACKET_TLV_TYPE_REQUEST, NULL)))
+		if (!(request = packet_create(PACKET_TLV_TYPE_REQUEST, 0)))
 		{
 			res = ERROR_NOT_ENOUGH_MEMORY;
 			break;
@@ -713,9 +708,9 @@ DWORD channel_interact(Channel *channel, Remote *remote, Tlv *addend,
 		packet_add_tlvs(request, addend, addendLength);
 
 		// If no method TLV as added, add the default one.
-		if (packet_get_tlv(request, TLV_TYPE_METHOD, &methodTlv) != ERROR_SUCCESS)
+		if (packet_get_tlv(request, TLV_TYPE_METHOD_ID, &methodTlv) != ERROR_SUCCESS)
 		{
-			packet_add_tlv_string(request, TLV_TYPE_METHOD, method);
+			packet_add_tlv_uint(request, TLV_TYPE_METHOD_ID, CORE_CHANNEL_INTERACT);
 		}
 
 		// Add the channel identifier

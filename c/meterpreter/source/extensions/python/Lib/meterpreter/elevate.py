@@ -7,14 +7,14 @@ from meterpreter.tlv import *
 def getsystem():
   tlv = tlv_pack(TLV_TYPE_ELEVATE_TECHNIQUE, 1)
   tlv += tlv_pack(TLV_TYPE_ELEVATE_SERVICE_NAME, rnd_string(5))
-  resp = invoke_meterpreter('priv_elevate_getsystem', True, tlv)
+  resp = invoke_meterpreter(PRIV_ELEVATE_GETSYSTEM, True, tlv)
   if resp == None:
     return False
 
   return packet_get_tlv(resp, TLV_TYPE_RESULT)['value'] == 0
 
 def rev2self():
-  resp = invoke_meterpreter('stdapi_sys_config_rev2self', True)
+  resp = invoke_meterpreter(STDAPI_SYS_CONFIG_REV2SELF, True)
   if resp == None:
     return False
 
@@ -22,14 +22,14 @@ def rev2self():
 
 def steal_token(pid):
   tlv = tlv_pack(TLV_TYPE_PID, pid)
-  resp = invoke_meterpreter('stdapi_sys_config_steal_token', True, tlv)
+  resp = invoke_meterpreter(STDAPI_SYS_CONFIG_STEAL_TOKEN, True, tlv)
   if resp == None:
     return False
 
   return packet_get_tlv(resp, TLV_TYPE_RESULT)['value'] == 0
 
 def drop_token():
-  resp = invoke_meterpreter('stdapi_sys_config_drop_token', True)
+  resp = invoke_meterpreter(STDAPI_SYS_CONFIG_DROP_TOKEN, True)
   if resp == None:
     return False
 

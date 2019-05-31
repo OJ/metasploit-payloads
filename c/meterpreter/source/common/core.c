@@ -133,10 +133,10 @@ VOID core_update_desktop(Remote * remote, DWORD dwSessionID, char * cpStationNam
 /*!
  * @brief Create a packet of a given type (request/response) and method.
  * @param type The TLV type that this packet represents.
- * @param method TLV method type (can be \c NULL).
+ * @param methodId TLV method type (can be \c 0 ).
  * @return Pointer to the newly created \c Packet.
  */
-Packet *packet_create(PacketTlvType type, LPCSTR method)
+Packet *packet_create(PacketTlvType type, UINT methodId)
 {
 	Packet *packet = NULL;
 	BOOL success = FALSE;
@@ -159,7 +159,7 @@ Packet *packet_create(PacketTlvType type, LPCSTR method)
 		packet->payloadLength = 0;
 
 		// Add the method TLV if provided
-		if (method && packet_add_tlv_string(packet, TLV_TYPE_METHOD, method) != ERROR_SUCCESS)
+		if (methodId != 0 && packet_add_tlv_uint(packet, TLV_TYPE_METHOD_ID, methodId) != ERROR_SUCCESS)
 		{
 			break;
 		}
@@ -258,14 +258,14 @@ Packet *packet_create_response(Packet *request)
 	do
 	{
 		// Get the request TLV's method
-		if (packet_get_tlv_string(request, TLV_TYPE_METHOD, &method) != ERROR_SUCCESS)
+		if (packet_get_tlv(request, TLV_TYPE_METHOD_ID, &method) != ERROR_SUCCESS)
 		{
 			vdprintf("[PKT] Can't find method");
 			break;
 		}
 
 		// Try to allocate a response packet
-		if (!(response = packet_create(responseType, (PCHAR)method.buffer)))
+		if (!(response = packet_create(responseType, packet_get_tlv_value_uint(request, TLV_TYPE_METHOD_ID))))
 		{
 			vdprintf("[PKT] Can't create response");
 			break;
@@ -1151,43 +1151,43 @@ DWORD packet_add_completion_handler(LPCSTR requestId, PacketRequestCompletion *c
  * @retval ERROR_NOT_FOUND Unable to find any matching completion handlers for the request.
  * @retval ERROR_SUCCESS Execution was successful.
  */
-DWORD packet_call_completion_handlers( Remote *remote, Packet *response, LPCSTR requestId )
+DWORD packet_call_completion_handlers(Remote *remote, Packet *response, LPCSTR requestId)
 {
 	PacketCompletionRoutineEntry *current;
 	DWORD result = packet_get_tlv_value_uint(response, TLV_TYPE_RESULT);
 	DWORD matches = 0;
 	Tlv methodTlv;
-	LPCSTR method = NULL;
+	UINT methodId = 0;
 
 	// Get the method associated with this packet
-	if (packet_get_tlv_string(response, TLV_TYPE_METHOD, &methodTlv) == ERROR_SUCCESS)
+	if (packet_get_tlv_string(response, TLV_TYPE_METHOD_ID, &methodTlv) == ERROR_SUCCESS)
 	{
-		method = (LPCSTR)methodTlv.buffer;
+		methodId = packet_get_tlv_value_uint(response, TLV_TYPE_METHOD_ID);
 	}
 
-// Enumerate the completion routine list
-for (current = packetCompletionRoutineList; current; current = current->next)
-{
-	// Does the request id of the completion entry match the packet's request
-	// id?
-	if (strcmp(requestId, current->requestId))
+	// Enumerate the completion routine list
+	for (current = packetCompletionRoutineList; current; current = current->next)
 	{
-		continue;
+		// Does the request id of the completion entry match the packet's request
+		// id?
+		if (strcmp(requestId, current->requestId))
+		{
+			continue;
+		}
+
+		// Call the completion routine
+		current->handler.routine(remote, response, current->handler.context, methodId, result);
+
+		// Increment the number of matched handlers
+		matches++;
 	}
 
-	// Call the completion routine
-	current->handler.routine(remote, response, current->handler.context, method, result);
+	if (matches)
+	{
+		packet_remove_completion_handler(requestId);
+	}
 
-	// Increment the number of matched handlers
-	matches++;
-}
-
-if (matches)
-{
-	packet_remove_completion_handler(requestId);
-}
-
-return (matches > 0) ? ERROR_SUCCESS : ERROR_NOT_FOUND;
+	return (matches > 0) ? ERROR_SUCCESS : ERROR_NOT_FOUND;
 }
 
 /*!
