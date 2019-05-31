@@ -16,11 +16,7 @@ namespace MSF.PowershellTester
             //MSF.Powershell.Runner.Remove("Default");
 
             Tlv t = new Tlv();
-            t.Pack(TlvType.ElevateTechnique, 1);
-            t.Pack(TlvType.ElevateServiceName, "abcd1234");
-
-            var x = t.ToRequest("priv_elevate_getsystem");
-            var y = 0;
+            var x = t.ToRequest(PacketMethod.StdapiSysConfigGetuid);
         }
     }
 }

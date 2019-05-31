@@ -10,7 +10,7 @@ namespace MSF.Powershell.Meterpreter
     {
         private MemoryStream _stream = null;
 
-        public byte[] ToRequest(string methodName)
+        public byte[] ToRequest(PacketMethod method)
         {
             var tlvBytes = this.Bytes;
             if (tlvBytes == null)
@@ -24,7 +24,7 @@ namespace MSF.Powershell.Meterpreter
                 var packetType = ToBytes((int)PacketType.Request);
 
                 headerStream.Write(packetType, 0, packetType.Length);
-                Append(headerStream, TlvType.Method, ToBytes(methodName));
+                Append(headerStream, TlvType.MethodId, ToBytes((uint)method));
                 Append(headerStream, TlvType.RequestId, ToBytes(Core.RandomString(8)));
 
                 header = headerStream.ToArray();
@@ -280,7 +280,7 @@ namespace MSF.Powershell.Meterpreter
 
         private static byte[] ToBytes(uint i)
         {
-            return BitConverter.GetBytes(IPAddress.HostToNetworkOrder(i));
+            return BitConverter.GetBytes(IPAddress.HostToNetworkOrder((int)i));
         }
 
         private static byte[] ToBytes(string s)
@@ -290,7 +290,7 @@ namespace MSF.Powershell.Meterpreter
 
         private static MetaType TlvTypeToMetaType(TlvType tlvType)
         {
-            return (MetaType)((int)tlvType & (int)MetaType.All);
+            return (MetaType)((uint)tlvType & (uint)MetaType.All);
         }
     }
 }

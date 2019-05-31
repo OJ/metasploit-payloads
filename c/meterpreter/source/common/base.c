@@ -452,7 +452,7 @@ BOOL command_handle(Remote *remote, Packet *packet)
 			break;
 		}
 
-    UINT methodId = packet_get_tlv_value_uint(packet, TLV_TYPE_METHOD_ID);
+		UINT methodId = packet_get_tlv_value_uint(packet, TLV_TYPE_METHOD_ID);
 
 		baseCommand = command_locate_base(methodId);
 		extensionCommand = command_locate_extension(methodId);
