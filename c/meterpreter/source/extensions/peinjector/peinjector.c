@@ -3,6 +3,7 @@
  * @brief Entry point and intialisation definitions for the Peinjector extension
  */
 #include "../../common/common.h"
+#include "../../common/tlv.h"
 
 #include "../../DelayLoadMetSrv/DelayLoadMetSrv.h"
 
@@ -12,8 +13,6 @@
 
 // this sets the delay load hook function, see DelayLoadMetSrv.h
 EnableDelayLoadMetSrv();
-
-#define PEINJECTOR_INJECT_SHELLCODE 14000
 
 Command customCommands[] =
 {

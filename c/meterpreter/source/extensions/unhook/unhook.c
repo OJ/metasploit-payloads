@@ -3,6 +3,7 @@
  * @brief Entry point and intialisation functionality for the unhook extention.
  */
 #include "../../common/common.h"
+#include "../../common/tlv.h"
 
 #include "../../DelayLoadMetSrv/DelayLoadMetSrv.h"
 // include the Reflectiveloader() function, we end up linking back to the metsrv.dll's Init function
@@ -17,8 +18,6 @@ DWORD unhook_pe(Remote *remote, Packet *packet);
 
 // this sets the delay load hook function, see DelayLoadMetSrv.h
 EnableDelayLoadMetSrv();
-
-#define UNHOOK_PE 18000
 
 Command customCommands[] =
 {

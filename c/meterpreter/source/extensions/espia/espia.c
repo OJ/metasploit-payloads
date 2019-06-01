@@ -3,6 +3,7 @@
  */
 #define _CRT_SECURE_NO_DEPRECATE 1
 #include "../../common/common.h"
+#include "../../common/tlv.h"
 #include "espia.h"
 #include "audio.h"
 #include "video.h"
@@ -15,10 +16,6 @@
 #include "../../ReflectiveDLLInjection/dll/src/ReflectiveLoader.c"
 
 // NOTE: _CRT_SECURE_NO_WARNINGS has been added to Configuration->C/C++->Preprocessor->Preprocessor
-
-#define ESPIA_AUDIO_GET_DEV_AUDIO 10000
-#define ESPIA_IMAGE_GET_DEV_SCREEN 10001
-#define ESPIA_VIDEO_GET_DEV_IMAGE 10002
 
 // this sets the delay load hook function, see DelayLoadMetSrv.h
 EnableDelayLoadMetSrv();

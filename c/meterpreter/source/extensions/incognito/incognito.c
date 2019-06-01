@@ -3,6 +3,7 @@
  */
 #define _CRT_SECURE_NO_DEPRECATE 1
 #include "../../common/common.h"
+#include "../../common/tlv.h"
 #include <psapi.h>
 #include "incognito.h"
 #include "token_info.h"
@@ -202,13 +203,6 @@ cleanup:
 
 	return ERROR_SUCCESS;
 }
-
-#define INCOGNITO_ADD_GROUP_USER 5000
-#define INCOGNITO_ADD_LOCALGROUP_USER 5001
-#define INCOGNITO_ADD_USER 5002
-#define INCOGNITO_IMPERSONATE_TOKEN 5003
-#define INCOGNITO_LIST_TOKENS 5004
-#define INCOGNITO_SNARF_HASHES 5005
 
 Command customCommands[] =
 {

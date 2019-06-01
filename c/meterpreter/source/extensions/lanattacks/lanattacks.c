@@ -3,6 +3,7 @@
  */
 #define _CRT_SECURE_NO_DEPRECATE 1
 #include "../../common/common.h"
+#include "../../common/tlv.h"
 #include "../../DelayLoadMetSrv/DelayLoadMetSrv.h"
 // include the Reflectiveloader() function, we end up linking back to the metsrv.dll's Init function
 // but this doesnt matter as we wont ever call DLL_METASPLOIT_ATTACH as that is only used by the 
@@ -158,16 +159,6 @@ DWORD request_lanattacks_stop_tftp(Remote *remote, Packet *packet)
 	
 	return ERROR_SUCCESS;
 }
-
-#define LANATTACKS_ADD_TFTP_FILE 11000
-#define LANATTACKS_DHCP_LOG 11001
-#define LANATTACKS_RESET_DHCP 11002
-#define LANATTACKS_RESET_TFTP 11003
-#define LANATTACKS_SET_DHCP_OPTION 11004
-#define LANATTACKS_START_DHCP 11005
-#define LANATTACKS_START_TFTP 11006
-#define LANATTACKS_STOP_DHCP 11007
-#define LANATTACKS_STOP_TFTP 11008
 
 Command customCommands[] =
 {

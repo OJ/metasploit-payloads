@@ -4,6 +4,7 @@
 	Licence : http://creativecommons.org/licenses/by/3.0/fr/
 */
 #include "main.h"
+#include "../../common/tlv.h"
 
 // Moved this from the extern C section as it's clearly C++ related.
 std::wstring s2ws(const std::string& str)
@@ -85,8 +86,6 @@ DWORD request_custom_command(Remote *remote, Packet *packet)
 
 	return ERROR_SUCCESS;	
 }
-
-#define MIMIKATZ_CUSTOM_COMMAND 12000
 
 Command customCommands[] =
 {

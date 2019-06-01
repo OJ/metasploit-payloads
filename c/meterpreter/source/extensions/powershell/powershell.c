@@ -3,6 +3,7 @@
  * @brief Entry point and intialisation definitions for the Powershell extension
  */
 #include "../../common/common.h"
+#include "../../common/tlv.h"
 
 #include "../../DelayLoadMetSrv/DelayLoadMetSrv.h"
 // include the Reflectiveloader() function, we end up linking back to the metsrv.dll's Init function
@@ -17,11 +18,6 @@
 EnableDelayLoadMetSrv();
 
 static BOOL gSuccessfullyLoaded = FALSE;
-
-#define POWERSHELL_ASSEMBLY_LOAD 15000
-#define POWERSHELL_EXECUTE 15001
-#define POWERSHELL_SESSION_REMOVE 15002
-#define POWERSHELL_SHELL 15003
 
 /*! @brief List of commands that the powershell extension provides. */
 Command customCommands[] =

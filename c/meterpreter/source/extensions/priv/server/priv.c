@@ -2,6 +2,7 @@
  * @brief This module implements privilege escalation features.
  */
 #include "precomp.h"
+#include "../../../common/tlv.h"
 
 // include the Reflectiveloader() function, we end up linking back to the metsrv.dll's Init function
 // but this doesnt matter as we wont ever call DLL_METASPLOIT_ATTACH as that is only used by the
@@ -10,14 +11,6 @@
 
 // this sets the delay load hook function, see DelayLoadMetSrv.h
 EnableDelayLoadMetSrv();
-
-#define PRIV_ELEVATE_GETSYSTEM 3000
-#define PRIV_FS_BLANK_DIRECTORY_MACE 3001
-#define PRIV_FS_BLANK_FILE_MACE 3002
-#define PRIV_FS_GET_FILE_MACE 3003
-#define PRIV_FS_SET_FILE_MACE 3004
-#define PRIV_FS_SET_FILE_MACE_FROM_FILE 3005
-#define PRIV_PASSWD_GET_SAM_HASHES 3006
 
 /*!
  * @brief `priv` extension dispatch table.

@@ -3,6 +3,7 @@
  * @brief Entry point and intialisation definitions for the extended API extension.
  */
 #include "../../common/common.h"
+#include "../../common/tlv.h"
 
 #include "../../DelayLoadMetSrv/DelayLoadMetSrv.h"
 // include the Reflectiveloader() function, we end up linking back to the metsrv.dll's Init function
@@ -17,23 +18,6 @@
 #include "wmi.h"
 #include "ntds.h"
 #include "pageantjacker.h"
-
-#define EXTAPI_ADSI_DOMAIN_QUERY 4000
-#define EXTAPI_CLIPBOARD_GET_DATA 4001
-#define EXTAPI_CLIPBOARD_MONITOR_DUMP 4002
-#define EXTAPI_CLIPBOARD_MONITOR_PAUSE 4003
-#define EXTAPI_CLIPBOARD_MONITOR_PURGE 4004
-#define EXTAPI_CLIPBOARD_MONITOR_RESUME 4005
-#define EXTAPI_CLIPBOARD_MONITOR_START 4006
-#define EXTAPI_CLIPBOARD_MONITOR_STOP 4007
-#define EXTAPI_CLIPBOARD_SET_DATA 4008
-#define EXTAPI_NTDS_PARSE 4009
-#define EXTAPI_PAGEANT_SEND_QUERY 4010
-#define EXTAPI_SERVICE_CONTROL 4011
-#define EXTAPI_SERVICE_ENUM 4012
-#define EXTAPI_SERVICE_QUERY 4013
-#define EXTAPI_WINDOW_ENUM 4014
-#define EXTAPI_WMI_QUERY 4015
 
 // this sets the delay load hook function, see DelayLoadMetSrv.h
 EnableDelayLoadMetSrv();

@@ -1,5 +1,6 @@
 #include "metsrv.h"
 #include "win\server_pivot.h"
+#include "../../common/tlv.h"
 
 // see ReflectiveLoader.c...
 extern HINSTANCE hAppInstance;
@@ -12,16 +13,6 @@ DWORD request_core_get_session_guid(Remote* remote, Packet* packet);
 DWORD request_core_set_session_guid(Remote* remote, Packet* packet);
 DWORD request_core_set_uuid(Remote* remote, Packet* packet);
 BOOL request_core_patch_url(Remote* remote, Packet* packet, DWORD* result);
-
-#define CORE_ENUMEXTCMD 1009
-#define CORE_GET_SESSION_GUID 1010
-#define CORE_LOADLIB 1011
-#define CORE_MACHINE_ID 1012
-#define CORE_PIVOT_ADD 1016
-#define CORE_PIVOT_REMOVE 1017
-#define CORE_SET_SESSION_GUID 1018
-#define CORE_SET_UUID 1019
-#define CORE_PATCH_URL 1031
 
 // Dispatch table
 Command customCommands[] =

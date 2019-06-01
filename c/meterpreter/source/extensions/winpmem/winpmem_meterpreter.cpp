@@ -5,6 +5,7 @@ extern "C" {
 	 * @brief Entry point and intialisation functionality for the WINPMEM extention.
 	 */
 #include "../../common/common.h"
+#include "../../common/tlv.h"
 
 #include "../../DelayLoadMetSrv/DelayLoadMetSrv.h"
 	// include the Reflectiveloader() function, we end up linking back to the metsrv.dll's Init function
@@ -14,8 +15,6 @@ extern "C" {
 
 	// this sets the delay load hook function, see DelayLoadMetSrv.h
 	EnableDelayLoadMetSrv();
-
-#define DUMP_RAM 9000
 
 	DWORD dump_ram(Remote *remote, Packet *packet);
 

@@ -13,6 +13,7 @@
 EnableDelayLoadMetSrv();
 
 #include "main.h"
+#include "../../common/tlv.h"
 
 extern __declspec(dllexport) wchar_t * powershell_reflective_mimikatz(LPWSTR input);
 extern DWORD kuhl_m_kerberos_ptt_data(PVOID data, DWORD dataSize);
@@ -20,8 +21,6 @@ extern LONG mimikatz_initOrClean(BOOL Init);
 
 DWORD request_exec_cmd(Remote *remote, Packet *packet);
 DWORD request_kerberos_ticket_use(Remote *remote, Packet *packet);
-
-#define KIWI_EXEC_CMD 6000
 
 /*! @brief The enabled commands for this extension. */
 Command customCommands[] =
