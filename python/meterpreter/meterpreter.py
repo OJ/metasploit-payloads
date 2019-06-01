@@ -185,6 +185,161 @@ PACKET_LENGTH_OFF = (PACKET_XOR_KEY_SIZE + PACKET_SESSION_GUID_SIZE +
 PACKET_HEADER_SIZE = (PACKET_XOR_KEY_SIZE + PACKET_SESSION_GUID_SIZE +
         PACKET_ENCRYPT_FLAG_SIZE + PACKET_LENGTH_SIZE + PACKET_TYPE_SIZE)
 
+COMMAND_IDS = (
+    (1000, 'core_channel_close'),
+    (1001, 'core_channel_eof'),
+    (1002, 'core_channel_interact'),
+    (1003, 'core_channel_open'),
+    (1004, 'core_channel_read'),
+    (1005, 'core_channel_seek'),
+    (1006, 'core_channel_tell'),
+    (1007, 'core_channel_write'),
+    (1008, 'core_console_write'),
+    (1009, 'core_enumextcmd'),
+    (1010, 'core_get_session_guid'),
+    (1011, 'core_loadlib'),
+    (1012, 'core_machine_id'),
+    (1013, 'core_migrate'),
+    (1014, 'core_native_arch'),
+    (1015, 'core_negotiate_tlv_encryption'),
+    (1016, 'core_patch_url'),
+    (1017, 'core_pivot_add'),
+    (1018, 'core_pivot_remove'),
+    (1019, 'core_pivot_session_died'),
+    (1020, 'core_pivot_session_new'),
+    (1021, 'core_set_session_guid'),
+    (1022, 'core_set_uuid'),
+    (1023, 'core_shutdown'),
+    (1024, 'core_transport_add'),
+    (1025, 'core_transport_change'),
+    (1026, 'core_transport_getcerthash'),
+    (1027, 'core_transport_list'),
+    (1028, 'core_transport_next'),
+    (1029, 'core_transport_prev'),
+    (1030, 'core_transport_remove'),
+    (1031, 'core_transport_set_timeouts'),
+    (1032, 'core_transport_setcerthash'),
+    (1033, 'core_transport_sleep'),
+    (2000, 'stdapi_audio_mic_list'),
+    (2001, 'stdapi_audio_mic_start'),
+    (2002, 'stdapi_audio_mic_stop'),
+    (2003, 'stdapi_fs_chdir'),
+    (2004, 'stdapi_fs_chmod'),
+    (2005, 'stdapi_fs_delete_dir'),
+    (2006, 'stdapi_fs_delete_file'),
+    (2007, 'stdapi_fs_file_copy'),
+    (2008, 'stdapi_fs_file_expand_path'),
+    (2009, 'stdapi_fs_file_move'),
+    (2010, 'stdapi_fs_getwd'),
+    (2011, 'stdapi_fs_ls'),
+    (2012, 'stdapi_fs_md5'),
+    (2013, 'stdapi_fs_mkdir'),
+    (2014, 'stdapi_fs_mount_show'),
+    (2015, 'stdapi_fs_search'),
+    (2016, 'stdapi_fs_separator'),
+    (2017, 'stdapi_fs_sha1'),
+    (2018, 'stdapi_fs_stat'),
+    (2019, 'stdapi_net_config_add_route'),
+    (2020, 'stdapi_net_config_get_arp_table'),
+    (2021, 'stdapi_net_config_get_interfaces'),
+    (2022, 'stdapi_net_config_get_netstat'),
+    (2023, 'stdapi_net_config_get_proxy'),
+    (2024, 'stdapi_net_config_get_routes'),
+    (2025, 'stdapi_net_config_remove_route'),
+    (2026, 'stdapi_net_resolve_host'),
+    (2027, 'stdapi_net_resolve_hosts'),
+    (2028, 'stdapi_net_socket_tcp_shutdown'),
+    (2029, 'stdapi_railgun_api'),
+    (2030, 'stdapi_railgun_api_multi'),
+    (2031, 'stdapi_railgun_memread'),
+    (2032, 'stdapi_railgun_memwrite'),
+    (2033, 'stdapi_registry_check_key_exists'),
+    (2034, 'stdapi_registry_close_key'),
+    (2035, 'stdapi_registry_create_key'),
+    (2036, 'stdapi_registry_delete_key'),
+    (2037, 'stdapi_registry_delete_value'),
+    (2038, 'stdapi_registry_enum_key'),
+    (2039, 'stdapi_registry_enum_key_direct'),
+    (2040, 'stdapi_registry_enum_value'),
+    (2041, 'stdapi_registry_enum_value_direct'),
+    (2042, 'stdapi_registry_load_key'),
+    (2043, 'stdapi_registry_open_key'),
+    (2044, 'stdapi_registry_open_remote_key'),
+    (2045, 'stdapi_registry_query_class'),
+    (2046, 'stdapi_registry_query_value'),
+    (2047, 'stdapi_registry_query_value_direct'),
+    (2048, 'stdapi_registry_set_value'),
+    (2049, 'stdapi_registry_set_value_direct'),
+    (2050, 'stdapi_registry_unload_key'),
+    (2051, 'stdapi_sys_config_driver_list'),
+    (2052, 'stdapi_sys_config_drop_token'),
+    (2053, 'stdapi_sys_config_getenv'),
+    (2054, 'stdapi_sys_config_getprivs'),
+    (2055, 'stdapi_sys_config_getsid'),
+    (2056, 'stdapi_sys_config_getuid'),
+    (2057, 'stdapi_sys_config_localtime'),
+    (2058, 'stdapi_sys_config_rev2self'),
+    (2059, 'stdapi_sys_config_steal_token'),
+    (2060, 'stdapi_sys_config_sysinfo'),
+    (2061, 'stdapi_sys_eventlog_clear'),
+    (2062, 'stdapi_sys_eventlog_close'),
+    (2063, 'stdapi_sys_eventlog_numrecords'),
+    (2064, 'stdapi_sys_eventlog_oldest'),
+    (2065, 'stdapi_sys_eventlog_open'),
+    (2066, 'stdapi_sys_eventlog_read'),
+    (2067, 'stdapi_sys_power_exitwindows'),
+    (2068, 'stdapi_sys_process_attach'),
+    (2069, 'stdapi_sys_process_close'),
+    (2070, 'stdapi_sys_process_execute'),
+    (2071, 'stdapi_sys_process_get_info'),
+    (2072, 'stdapi_sys_process_get_processes'),
+    (2073, 'stdapi_sys_process_getpid'),
+    (2074, 'stdapi_sys_process_image_get_images'),
+    (2075, 'stdapi_sys_process_image_get_proc_address'),
+    (2076, 'stdapi_sys_process_image_load'),
+    (2077, 'stdapi_sys_process_image_unload'),
+    (2078, 'stdapi_sys_process_kill'),
+    (2079, 'stdapi_sys_process_memory_allocate'),
+    (2080, 'stdapi_sys_process_memory_free'),
+    (2081, 'stdapi_sys_process_memory_lock'),
+    (2082, 'stdapi_sys_process_memory_protect'),
+    (2083, 'stdapi_sys_process_memory_query'),
+    (2084, 'stdapi_sys_process_memory_read'),
+    (2085, 'stdapi_sys_process_memory_unlock'),
+    (2086, 'stdapi_sys_process_memory_write'),
+    (2087, 'stdapi_sys_process_thread_close'),
+    (2088, 'stdapi_sys_process_thread_create'),
+    (2089, 'stdapi_sys_process_thread_get_threads'),
+    (2090, 'stdapi_sys_process_thread_open'),
+    (2091, 'stdapi_sys_process_thread_query_regs'),
+    (2092, 'stdapi_sys_process_thread_resume'),
+    (2093, 'stdapi_sys_process_thread_set_regs'),
+    (2094, 'stdapi_sys_process_thread_suspend'),
+    (2095, 'stdapi_sys_process_thread_terminate'),
+    (2096, 'stdapi_sys_process_wait'),
+    (2097, 'stdapi_tcp_channel_open'),
+    (2098, 'stdapi_ui_desktop_enum'),
+    (2099, 'stdapi_ui_desktop_get'),
+    (2100, 'stdapi_ui_desktop_screenshot'),
+    (2101, 'stdapi_ui_desktop_set'),
+    (2102, 'stdapi_ui_enable_keyboard'),
+    (2103, 'stdapi_ui_enable_mouse'),
+    (2104, 'stdapi_ui_get_idle_time'),
+    (2105, 'stdapi_ui_get_keys'),
+    (2106, 'stdapi_ui_get_keys_utf8'),
+    (2107, 'stdapi_ui_send_keys'),
+    (2108, 'stdapi_ui_send_mouse'),
+    (2109, 'stdapi_ui_start_keyscan'),
+    (2110, 'stdapi_ui_stop_keyscan'),
+    (2111, 'stdapi_ui_unlock_desktop'),
+    (2112, 'stdapi_webcam_audio_record'),
+    (2113, 'stdapi_webcam_get_frame'),
+    (2114, 'stdapi_webcam_list'),
+    (2115, 'stdapi_webcam_start'),
+    (2116, 'stdapi_webcam_stop'),
+    (2117, 'stdapi_fs_delete'),
+)
+
 class SYSTEM_INFO(ctypes.Structure):
     _fields_ = [("wProcessorArchitecture", ctypes.c_uint16),
         ("wReserved", ctypes.c_uint16),
@@ -215,6 +370,22 @@ def export(symbol):
 def generate_request_id():
     chars = 'abcdefghijklmnopqrstuvwxyz'
     return ''.join(random.choice(chars) for x in range(32))
+
+@export
+def cmd_id_to_string(this_id):
+    for that_id, that_string in COMMAND_IDS:
+        if this_id == that_id:
+            return that_string
+    debug_print('[*] failed to lookup string for command id: ' + str(this_id))
+    return None
+
+@export
+def cmd_string_to_id(this_string):
+    for that_id, that_string in COMMAND_IDS:
+        if this_string == that_string:
+            return that_id
+    debug_print('[*] failed to look up id for command string: ' + this_string)
+    return None
 
 @export
 def crc16(data):
@@ -382,7 +553,7 @@ def tlv_pack(*args):
 @export
 def tlv_pack_request(method, parts=None):
     pkt  = struct.pack('>I', PACKET_TYPE_REQUEST)
-    pkt += tlv_pack(TLV_TYPE_METHOD, method)
+    pkt += tlv_pack(TLV_TYPE_METHOD_ID, cmd_string_to_id(method))
     pkt += tlv_pack(TLV_TYPE_UUID, binascii.a2b_hex(bytes(PAYLOAD_UUID, 'UTF-8')))
     pkt += tlv_pack(TLV_TYPE_REQUEST_ID, generate_request_id())
     parts = parts or []
@@ -1198,7 +1369,7 @@ class PythonMeterpreter(object):
             check_extension = lambda x: x.startswith(extension_name)
             lib_methods = list(filter(check_extension, list(self.extension_functions.keys())))
             for method in lib_methods:
-                response += tlv_pack(TLV_TYPE_METHOD, method)
+                response += tlv_pack(TLV_TYPE_UINT, cmd_string_to_id(method))
         return ERROR_SUCCESS, response
 
     def _core_shutdown(self, request, response):
@@ -1358,11 +1529,11 @@ class PythonMeterpreter(object):
 
     def create_response(self, request):
         response = struct.pack('>I', PACKET_TYPE_RESPONSE)
-        method_tlv = packet_get_tlv(request, TLV_TYPE_METHOD)
+        method_tlv = packet_get_tlv(request, TLV_TYPE_METHOD_ID)
         response += tlv_pack(method_tlv)
         response += tlv_pack(TLV_TYPE_UUID, binascii.a2b_hex(bytes(PAYLOAD_UUID, 'UTF-8')))
 
-        handler_name = method_tlv['value']
+        handler_name = cmd_id_to_string(method_tlv['value'])
         if handler_name in self.extension_functions:
             handler = self.extension_functions[handler_name]
             try:
