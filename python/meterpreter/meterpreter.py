@@ -337,7 +337,6 @@ COMMAND_IDS = (
     (2114, 'stdapi_webcam_list'),
     (2115, 'stdapi_webcam_start'),
     (2116, 'stdapi_webcam_stop'),
-    (2117, 'stdapi_fs_delete'),
 )
 
 class SYSTEM_INFO(ctypes.Structure):
