@@ -17,7 +17,7 @@ import com.metasploit.meterpreter.command.UnsupportedJavaVersionCommand;
 public class CommandManager {
 
     private final int javaVersion;
-    private Map/* <String,Command> */registeredCommands = new HashMap();
+    private Map/* <PacketMethod,Command> */registeredCommands = new HashMap();
     private Vector/* <String> */newCommands = new Vector();
 
     protected CommandManager() throws Exception {
@@ -57,7 +57,7 @@ public class CommandManager {
      * @param command      Name of the command
      * @param commandClass Class that implements the command
      */
-    public void registerCommand(String command, Class commandClass) throws Exception {
+    public void registerCommand(PacketMethod command, Class commandClass) throws Exception {
         registerCommand(command, commandClass, ExtensionLoader.V1_2);
     }
 
@@ -68,7 +68,7 @@ public class CommandManager {
      * @param commandClass Stub class for generating the class name that implements the command
      * @param version      Minimum Java version
      */
-    public void registerCommand(String command, Class commandClass, int version) throws Exception {
+    public void registerCommand(PacketMethod command, Class commandClass, int version) throws Exception {
         registerCommand(command, commandClass, version, version);
     }
 
@@ -80,7 +80,7 @@ public class CommandManager {
      * @param version       Minimum Java version
      * @param secondVersion Minimum Java version for the second implementation
      */
-    public void registerCommand(String command, Class commandClass, int version, int secondVersion) throws Exception {
+    public void registerCommand(PacketMethod command, Class commandClass, int version, int secondVersion) throws Exception {
         if (secondVersion < version) {
             throw new IllegalArgumentException("secondVersion must be larger than version");
         }
