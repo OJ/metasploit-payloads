@@ -236,4 +236,11 @@ public enum PacketMethod {
 
     public final int id;
     PacketMethod(int id) { this.id = id; }
+
+    public static PacketMethod fromId(int id) {
+        for (PacketMethod method : values()) {
+            if (method.id == id) { return method; }
+        }
+        return null;
+    }
 }

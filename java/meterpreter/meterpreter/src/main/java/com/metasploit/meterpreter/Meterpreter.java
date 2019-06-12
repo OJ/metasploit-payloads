@@ -292,7 +292,7 @@ public class Meterpreter {
      *
      * @param data The extension jar's content as a byte array
      */
-    public String[] loadExtension(byte[] data) throws Exception {
+    public PacketMethod[] loadExtension(byte[] data) throws Exception {
         ClassLoader classLoader = getClass().getClassLoader();
         if (loadExtensions) {
             URL url = MemoryBufferURLConnection.createURL(data, "application/jar");
@@ -301,8 +301,6 @@ public class Meterpreter {
         JarInputStream jis = new JarInputStream(new ByteArrayInputStream(data));
         String loaderName = (String) jis.getManifest().getMainAttributes().getValue("Extension-Loader");
         ExtensionLoader loader = (ExtensionLoader) classLoader.loadClass(loaderName).newInstance();
-        commandManager.resetNewCommands();
-        loader.load(commandManager);
-        return commandManager.getNewCommands();
+        return loader.load(commandManager);
     }
 }

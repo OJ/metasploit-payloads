@@ -12,4 +12,7 @@ public class core_channel_open implements Command {
         Command channelCreator = meterpreter.getCommandManager().getCommand("channel_create_" + channelType);
         return channelCreator.execute(meterpreter, request, response);
     }
+
+    private Command getCommandForType(String channelType, CommandManager mgr) {
+    }
 }

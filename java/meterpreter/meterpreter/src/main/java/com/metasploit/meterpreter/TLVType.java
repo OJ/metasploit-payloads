@@ -15,6 +15,7 @@ public interface TLVType {
     public static final int TLV_TYPE_REQUEST_ID = TLVPacket.TLV_META_TYPE_STRING | 2;
     public static final int TLV_TYPE_EXCEPTION  = TLVPacket.TLV_META_TYPE_GROUP  | 3;
     public static final int TLV_TYPE_RESULT     = TLVPacket.TLV_META_TYPE_UINT   | 4;
+    public static final int TLV_TYPE_METHOD_ID  = TLVPacket.TLV_META_TYPE_STRING | 5;
 
     public static final int TLV_TYPE_STRING = TLVPacket.TLV_META_TYPE_STRING | 10;
     public static final int TLV_TYPE_UINT   = TLVPacket.TLV_META_TYPE_UINT   | 11;

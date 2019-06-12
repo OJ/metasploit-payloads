@@ -17,8 +17,8 @@ import com.metasploit.meterpreter.command.UnsupportedJavaVersionCommand;
 public class CommandManager {
 
     private final int javaVersion;
-    private Map/* <PacketMethod,Command> */registeredCommands = new HashMap();
-    private Vector/* <String> */newCommands = new Vector();
+    private Map<String, Vector<PacketMethod>> registeredCommands = new HashMap<String, Vector<PacketMethod>>();
+    private Map<PacketMethod, Command> commandMap = new HashMap<PacketMethod, Command>();
 
     protected CommandManager() throws Exception {
         // get the API version, which might be different from the
@@ -54,39 +54,47 @@ public class CommandManager {
     /**
      * Register a command that can be executed on all Java versions (from 1.2 onward)
      *
-     * @param command      Name of the command
+     * @param extName      Name of the extension containing the command.
+     * @param command      ID of the command
      * @param commandClass Class that implements the command
      */
-    public void registerCommand(PacketMethod command, Class commandClass) throws Exception {
-        registerCommand(command, commandClass, ExtensionLoader.V1_2);
+    public void registerCommand(String extName, PacketMethod command, Class commandClass) throws Exception {
+        registerCommand(extName, command, commandClass, ExtensionLoader.V1_2);
     }
 
     /**
      * Register a command that can be executed only on some Java versions
      *
-     * @param command      Name of the command
+     * @param extName      Name of the extension containing the command.
+     * @param command      ID of the command
      * @param commandClass Stub class for generating the class name that implements the command
      * @param version      Minimum Java version
      */
-    public void registerCommand(PacketMethod command, Class commandClass, int version) throws Exception {
-        registerCommand(command, commandClass, version, version);
+    public void registerCommand(String extName, PacketMethod command, Class commandClass, int version) throws Exception {
+        registerCommand(extName, command, commandClass, version, version);
     }
 
     /**
      * Register a command that can be executed only on some Java versions, and has two different implementations for different Java versions.
      *
-     * @param command       Name of the command
+     * @param extName      Name of the extension containing the command.
+     * @param command      ID of the command
      * @param commandClass  Stub class for generating the class name that implements the command
      * @param version       Minimum Java version
      * @param secondVersion Minimum Java version for the second implementation
      */
-    public void registerCommand(PacketMethod command, Class commandClass, int version, int secondVersion) throws Exception {
+    public void registerCommand(String extName, PacketMethod command, Class commandClass, int version, int secondVersion) throws Exception {
         if (secondVersion < version) {
             throw new IllegalArgumentException("secondVersion must be larger than version");
         }
 
+        if (registeredCommands.get(extName) == null) {
+            registeredCommands.put(extName, new Vector<PacketMethod>());
+        }
+        registeredCommands.get(extName).add(command);
+
         if (javaVersion < version) {
-            registeredCommands.put(command, new UnsupportedJavaVersionCommand(command, version));
+            commandMap.put(command, new UnsupportedJavaVersionCommand(command, version));
             return;
         }
 
@@ -99,17 +107,14 @@ public class CommandManager {
         }
 
         Command cmd = (Command) commandClass.newInstance();
-        registeredCommands.put(command, cmd);
-        Command x = (Command)registeredCommands.get(command);
-
-        newCommands.add(command);
+        commandMap.put(command, cmd);
     }
 
     /**
      * Get a command for the given name.
      */
-    public Command getCommand(String name) {
-        Command cmd = (Command) registeredCommands.get(name);
+    public Command getCommand(PacketMethod method) {
+        Command cmd = (Command) commandMap.get(method);
         if (cmd == null) {
             cmd = NotYetImplementedCommand.INSTANCE;
         }
@@ -117,7 +122,7 @@ public class CommandManager {
     }
 
     public int executeCommand(Meterpreter met, TLVPacket request, TLVPacket response) throws IOException {
-        String method = request.getStringValue(TLVType.TLV_TYPE_METHOD);
+        PacketMethod method = PacketMethod.fromId(request.getIntValue(TLVType.TLV_TYPE_METHOD_ID));
         Command cmd = this.getCommand(method);
 
         int result;
@@ -137,24 +142,17 @@ public class CommandManager {
         return result;
     }
 
-    /**
-     * Reset the list of commands loaded by the last core_loadlib call
-     */
-    public void resetNewCommands() {
-        newCommands.clear();
-    }
+    ///**
+    // * Retrieves the list of commands loaded by the last core_loadlib call
+    // */
+    //public PacketMethod[] getNewCommands() {
+    //    return (PacketMethod[]) newCommands.toArray(new PacketMethod[newCommands.size()]);
+    //}
 
-    /**
-     * Retrieves the list of commands loaded by the last core_loadlib call
-     */
-    public String[] getNewCommands() {
-        return (String[]) newCommands.toArray(new String[newCommands.size()]);
-    }
-
-    /**
-     * Retrieves the list of commands
-     */
-    public String[] getCommands() {
-        return (String[]) registeredCommands.keySet().toArray(new String[registeredCommands.size()]);
+    ///**
+    // * Retrieves the list of commands for a given extension
+    // */
+    public PacketMethod[] getCommands(String extName) {
+        return (PacketMethod[]) registeredCommands.get(extName).toArray();
     }
 }

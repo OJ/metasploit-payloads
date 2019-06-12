@@ -18,5 +18,5 @@ public interface ExtensionLoader {
      *
      * @param commandManager command manager to load commands into.
      */
-    public void load(CommandManager commandManager) throws Exception;
+    public PacketMethod[] load(CommandManager commandManager) throws Exception;
 }
