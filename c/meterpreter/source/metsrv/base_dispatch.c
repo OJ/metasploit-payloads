@@ -544,7 +544,7 @@ BOOL remote_request_core_migrate(Remote * remote, Packet * packet, DWORD* pResul
 		dwPayloadLength = packet_get_tlv_value_uint(packet, TLV_TYPE_MIGRATE_PAYLOAD_LEN);
 
 		// Receive the actual migration payload buffer
-		lpPayloadBuffer = packet_get_tlv_value_string(packet, TLV_TYPE_MIGRATE_PAYLOAD);
+		lpPayloadBuffer = (BYTE*)packet_get_tlv_value_string(packet, TLV_TYPE_MIGRATE_PAYLOAD);
 
 		// Get handles to the updated UUIDs if they're there
 		lpUuid = packet_get_tlv_value_raw(packet, TLV_TYPE_UUID);
@@ -565,7 +565,7 @@ BOOL remote_request_core_migrate(Remote * remote, Packet * packet, DWORD* pResul
 
 			if (LookupPrivilegeValue(NULL, SE_DEBUG_NAME, &priv.Privileges[0].Luid))
 			{
-				if (AdjustTokenPrivileges(hToken, FALSE, &priv, 0, NULL, NULL));
+				if (AdjustTokenPrivileges(hToken, FALSE, &priv, 0, NULL, NULL))
 				{
 					dprintf("[MIGRATE] Got SeDebugPrivilege!");
 				}
