@@ -24,8 +24,8 @@ DWORD request_kerberos_ticket_use(Remote *remote, Packet *packet);
 /*! @brief The enabled commands for this extension. */
 Command customCommands[] =
 {
-    COMMAND_REQ("kiwi_exec_cmd", request_exec_cmd),
-    COMMAND_TERMINATOR
+	COMMAND_REQ("kiwi_exec_cmd", request_exec_cmd),
+	COMMAND_TERMINATOR
 };
 
 /*!
@@ -47,6 +47,7 @@ DWORD request_exec_cmd(Remote *remote, Packet *packet)
 		// While this implies that powershell is in use, this is just a naming thing,
 		// it's not actually using powershell.
 		wchar_t* output = powershell_reflective_mimikatz(cmd);
+		dprintf("[KIWI] Executed command: %S", cmd);
 		if (output != NULL)
 		{
 			met_api->packet.add_tlv_wstring(response, TLV_TYPE_KIWI_CMD_RESULT, output);
@@ -55,7 +56,7 @@ DWORD request_exec_cmd(Remote *remote, Packet *packet)
 		{
 			result = ERROR_OUTOFMEMORY;
 		}
-		free(cmd);
+		//LocalFree(cmd);
 	}
 	else
 	{
@@ -77,7 +78,7 @@ DWORD request_exec_cmd(Remote *remote, Packet *packet)
  */
 DWORD InitServerExtension(MetApi* api, Remote* remote)
 {
-    met_api = api;
+	met_api = api;
 
 	dprintf("[KIWI] Init server extension - initorclean");
 	mimikatz_initOrClean(TRUE);
@@ -123,7 +124,7 @@ DWORD GetExtensionName(char* buffer, int bufferSize)
  */
 DWORD StagelessInit(const LPBYTE buffer, DWORD bufferSize)
 {
-    return ERROR_SUCCESS;
+	return ERROR_SUCCESS;
 }
 
 /*!
