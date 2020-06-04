@@ -1,8 +1,8 @@
 ID := $(shell id -u)
 DOCKER_CONTAINER=win-meterpreter-build
 COMMON_GEN=-Wno-dev -DUSE_STATIC_MSVC_RUNTIMES=ON
-COMMON_GEN_X86=-DCMAKE_TOOLCHAIN_FILE=i686-w64-mingw32.cmake -DBUILD_ARCH=Win32 ${COMMON_GEN}
-COMMON_GEN_X64=-DCMAKE_TOOLCHAIN_FILE=x86_64-w64-mingw32.cmake -DBUILD_ARCH=x64 ${COMMON_GEN}
+COMMON_GEN_X86=-DCMAKE_TOOLCHAIN_FILE=../toolsets/i686-w64-mingw32.cmake -DBUILD_ARCH=Win32 ${COMMON_GEN}
+COMMON_GEN_X64=-DCMAKE_TOOLCHAIN_FILE=../toolsets/x86_64-w64-mingw32.cmake -DBUILD_ARCH=x64 ${COMMON_GEN}
 COMMON_BUILD=--config Release
 
 all: meterpreter
@@ -264,6 +264,46 @@ meterpreter-ext-peinjector-x64-gen:
 meterpreter-ext-peinjector-x64-build:
 	@cmake --build workspace/build/mingw-x64-ext-peinjector $(COMMON_BUILD)
 
+### Elevator
+
+meterpreter-plugin-elevator: meterpreter-plugin-elevator-x86 meterpreter-plugin-elevator-x64
+
+meterpreter-plugin-elevator-x86: meterpreter-plugin-elevator-x86-gen meterpreter-plugin-elevator-x86-build
+
+meterpreter-plugin-elevator-x86-gen:
+	@cmake -S workspace -B workspace/build/mingw-x86-plugin-elevator -DBUILD_ALL=OFF -DBUILD_PLUGIN_ELEVATOR=ON $(COMMON_GEN_X86)
+
+meterpreter-plugin-elevator-x86-build:
+	@cmake --build workspace/build/mingw-x86-plugin-elevator $(COMMON_BUILD)
+
+meterpreter-plugin-elevator-x64: meterpreter-plugin-elevator-x64-gen meterpreter-plugin-elevator-x64-build
+
+meterpreter-plugin-elevator-x64-gen:
+	@cmake -S workspace -B workspace/build/mingw-x64-plugin-elevator -DBUILD_ALL=OFF -DBUILD_PLUGIN_ELEVATOR=ON $(COMMON_GEN_X64)
+
+meterpreter-plugin-elevator-x64-build:
+	@cmake --build workspace/build/mingw-x64-plugin-elevator $(COMMON_BUILD)
+
+### Screenshot
+
+meterpreter-plugin-screenshot: meterpreter-plugin-screenshot-x86 meterpreter-plugin-screenshot-x64
+
+meterpreter-plugin-screenshot-x86: meterpreter-plugin-screenshot-x86-gen meterpreter-plugin-screenshot-x86-build
+
+meterpreter-plugin-screenshot-x86-gen:
+	@cmake -S workspace -B workspace/build/mingw-x86-plugin-screenshot -DBUILD_ALL=OFF -DBUILD_PLUGIN_SCREENSHOT=ON $(COMMON_GEN_X86)
+
+meterpreter-plugin-screenshot-x86-build:
+	@cmake --build workspace/build/mingw-x86-plugin-screenshot $(COMMON_BUILD)
+
+meterpreter-plugin-screenshot-x64: meterpreter-plugin-screenshot-x64-gen meterpreter-plugin-screenshot-x64-build
+
+meterpreter-plugin-screenshot-x64-gen:
+	@cmake -S workspace -B workspace/build/mingw-x64-plugin-screenshot -DBUILD_ALL=OFF -DBUILD_PLUGIN_SCREENSHOT=ON $(COMMON_GEN_X64)
+
+meterpreter-plugin-screenshot-x64-build:
+	@cmake --build workspace/build/mingw-x64-plugin-screenshot $(COMMON_BUILD)
+
 ##########################################################################################
 ### Container-based Builds
 ##########################################################################################
@@ -381,3 +421,21 @@ docker-ext-peinjector-x86:
 
 docker-ext-peinjector-x64:
 	@docker run -u $(ID):$(ID) -it -v ${PWD}:/meterpreter -w /meterpreter --rm $(DOCKER_CONTAINER) make meterpreter-ext-peinjector-x64
+
+docker-plugin-elevator:
+	@docker run -u $(ID):$(ID) -it -v ${PWD}:/meterpreter -w /meterpreter --rm $(DOCKER_CONTAINER) make meterpreter-plugin-elevator
+
+docker-plugin-elevator-x86:
+	@docker run -u $(ID):$(ID) -it -v ${PWD}:/meterpreter -w /meterpreter --rm $(DOCKER_CONTAINER) make meterpreter-plugin-elevator-x86
+
+docker-plugin-elevator-x64:
+	@docker run -u $(ID):$(ID) -it -v ${PWD}:/meterpreter -w /meterpreter --rm $(DOCKER_CONTAINER) make meterpreter-plugin-elevator-x64
+
+docker-plugin-screenshot:
+	@docker run -u $(ID):$(ID) -it -v ${PWD}:/meterpreter -w /meterpreter --rm $(DOCKER_CONTAINER) make meterpreter-plugin-screenshot
+
+docker-plugin-screenshot-x86:
+	@docker run -u $(ID):$(ID) -it -v ${PWD}:/meterpreter -w /meterpreter --rm $(DOCKER_CONTAINER) make meterpreter-plugin-screenshot-x86
+
+docker-plugin-screenshot-x64:
+	@docker run -u $(ID):$(ID) -it -v ${PWD}:/meterpreter -w /meterpreter --rm $(DOCKER_CONTAINER) make meterpreter-plugin-screenshot-x64

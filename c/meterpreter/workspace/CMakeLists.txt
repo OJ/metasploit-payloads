@@ -30,11 +30,15 @@ option(BUILD_EXT_LANATTACKS "Build the LANATTACKS extension" OFF)
 option(BUILD_EXT_PYTHON "Build the PYTHON extension" OFF)
 option(BUILD_EXT_POWERSHELL "Build the POWERSHELL extension" OFF)
 option(BUILD_EXT_PEINJECTOR "Build the PEINJECTOR extension" OFF)
+option(BUILD_PLUGIN_ALL "Build all plugins" OFF)
+option(BUILD_PLUGIN_SCREENSHOT "Build the SCREENSHOT plugin" OFF)
+option(BUILD_PLUGIN_ELEVATOR "Build the ELEVATOR plugin" OFF)
 
 if(BUILD_ALL)
     set(BUILD_LIB_JPEG ON)
     set(BUILD_METSRV ON)
     set(BUILD_EXT_ALL ON)
+    set(BUILD_PLUGIN_ALL ON)
     # TODO: plugins
 endif()
 
@@ -53,11 +57,12 @@ if(BUILD_EXT_ALL)
     set(BUILD_EXT_PEINJECTOR ON)
 endif()
 
-if(BUILD_EXT_ESPIA)
-    set(BUILD_LIB_JPEG ON)
+if(BUILD_PLUGIN_ALL)
+  set(BUILD_PLUGIN_SCREENSHOT ON)
+  set(BUILD_PLUGIN_ELEVATOR ON)
 endif()
 
-if(BUILD_EXT_STDAPI)
+if(BUILD_EXT_STDAPI OR BUILD_EXT_ESPIA OR BUILD_PLUGIN_SCREENSHOT)
     set(BUILD_LIB_JPEG ON)
 endif()
 
@@ -200,12 +205,12 @@ if(MSVC)
     endif()
 endif()
 
-if(MSVC)
-    set(
-        MET_PLUGINS
-        screenshot
-        elevator
-    )
+if(BUILD_PLUGIN_SCREENSHOT)
+    set(MET_PLUGINS ${MET_PLUGINS} screenshot)
+endif()
+
+if(BUILD_PLUGIN_ELEVATOR)
+    set(MET_PLUGINS ${MET_PLUGINS} elevator)
 endif()
 
 if(BUILD_METSRV)
