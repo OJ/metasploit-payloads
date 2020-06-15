@@ -43,6 +43,8 @@ RUN echo y | /usr/local/android-sdk/tools/android update sdk --filter android-10
 RUN echo y | /usr/local/android-sdk/tools/android update sdk --filter android-19 --no-ui -a
 RUN echo y | /usr/local/android-sdk/tools/android update sdk --filter android-3 --no-ui -a
 
+RUN update-java-alternatives --set java-1.8.0-openjdk-amd64
+
 # Pre-cache Maven artifacts
 RUN git clone https://github.com/rapid7/metasploit-payloads.git && \
 	cd metasploit-payloads/java && make ; cd .. && rm -fr metasploit-payloads
